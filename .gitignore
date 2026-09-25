@@ -1,13 +1,48 @@
-   .vs/
-   Debug/
-   Release/
-   x64/
-   x86/
-   *.obj
-   *.pdb
-   *.ilk
-   *.exe
-   *.suo
-   *.user
-   CMakeFiles/
-   out/
+# ==========================================
+# Visual Studio & C++ .gitignore
+# ==========================================
+
+# Visual Studio temporary files and workspace cache
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.opendb
+*.db
+*.db-shm
+*.db-wal
+
+# Build output directories (Debug, Release, x64, x86)
+[Dd]ebug/
+[Rr]elease/
+[Xx]64/
+[Xx]86/
+[Aa]rm/
+[Aa]rm64/
+bin/
+obj/
+
+# Visual C++ intermediate & object files
+*.obj
+*.ilk
+*.pdb
+*.tlog
+*.lastbuildstate
+*.idb
+*.log
+*.recipe
+*.manifest
+*.res
+*.ipch
+
+# Executables and libraries
+*.exe
+*.dll
+*.lib
+
+# CMake & external build artifacts (if applicable)
+CMakeFiles/
+CMakeCache.txt
+out/
+build/
