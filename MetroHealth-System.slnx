@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="ArrayProgram/ArrayProgram.vcxproj" Id="a172d65e-0aca-d61f-cc34-0f5bb59b57a7" />
+  <Project Path="LinkedListProgram/LinkedListProgram.vcxproj" Id="b283e76f-1bdb-e72a-dd45-1f6cc6a068b8" />
+</Solution>
