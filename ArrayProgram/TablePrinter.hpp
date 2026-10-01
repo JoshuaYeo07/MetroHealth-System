@@ -5,7 +5,6 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include "Console.hpp"
 
 /**
  * @class TablePrinter
@@ -15,11 +14,11 @@
 class TablePrinter {
 public:
     static void printHorizontalLine(int width = 110, char border = '-', char cross = '+') {
-        std::cout << Console::DIM << cross;
+        std::cout << cross;
         for (int i = 0; i < width - 2; ++i) {
             std::cout << border;
         }
-        std::cout << cross << Console::RESET << "\n";
+        std::cout << cross << "\n";
     }
 
     /**
@@ -29,26 +28,25 @@ public:
      * @param maxRows Maximum rows to display (0 for all rows)
      */
     static void displayPatientTable(const PatientArray& arr, const std::string& title, size_t maxRows = 15) {
-        const std::string rule(110, '=');
-        std::cout << "\n" << Console::DIM << rule << Console::RESET << "\n";
-        std::cout << Console::BOLD << Console::CYAN << "  " << title << " (Total Records: " << arr.size() << ")" << Console::RESET << "\n";
-        std::cout << Console::DIM << rule << Console::RESET << "\n";
+        std::cout << "\n==============================================================================================================\n";
+        std::cout << "  " << title << " (Total Records: " << arr.size() << ")\n";
+        std::cout << "==============================================================================================================\n";
 
         if (arr.isEmpty()) {
-            std::cout << Console::YELLOW << "  [Notice] No records found." << Console::RESET << "\n";
+            std::cout << "  [Notice] No records found.\n";
             std::cout << "--------------------------------------------------------------------------------------------------------------\n";
             return;
         }
 
         printHorizontalLine();
-        std::cout << Console::BOLD << Console::YELLOW << "| " << std::left  << std::setw(12) << "Patient ID"
+        std::cout << "| " << std::left  << std::setw(12) << "Patient ID"
                   << "| " << std::right << std::setw(5)  << "Age"
                   << " | " << std::left  << std::setw(18) << "Care Type"
                   << "| " << std::right << std::setw(10) << "Stay (hrs)"
                   << "| " << std::right << std::setw(14) << "Rate (MYR/hr)"
                   << "| " << std::right << std::setw(11) << "Visits/Yr"
                   << "| " << std::right << std::setw(17) << "Total Cost (MYR)"
-                  << " |" << Console::RESET << "\n";
+                  << " |\n";
         printHorizontalLine();
 
         size_t limit = (maxRows > 0 && maxRows < arr.size()) ? maxRows : arr.size();

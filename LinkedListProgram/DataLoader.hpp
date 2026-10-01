@@ -51,7 +51,7 @@ public:
         std::ifstream file(resolvedPath);
 
         if (!file.is_open()) {
-            std::cerr << "\033[91m[Error] Unable to open dataset file at: " << resolvedPath << "\033[0m\n";
+            std::cerr << "[Error] Unable to open dataset file at: " << resolvedPath << "\n";
             return -1;
         }
 
@@ -86,7 +86,7 @@ public:
                     targetList.push_back(p);
                     loadedCount++;
                 } catch (const std::exception& e) {
-                    std::cerr << "\033[93m[Warning] Skipping malformed row: " << line << " (" << e.what() << ")\033[0m\n";
+                    std::cerr << "[Warning] Skipping malformed row: " << line << " (" << e.what() << ")\n";
                 }
             }
         }

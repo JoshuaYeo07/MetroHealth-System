@@ -6,7 +6,6 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include "Console.hpp"
 
 /**
  * @class TablePrinter
@@ -18,22 +17,22 @@ public:
     static constexpr int REPORT_WIDTH = 110;
 
     static void printHorizontalLine(int width = REPORT_WIDTH, char border = '-', char cross = '+') {
-        std::cout << Console::DIM << cross << std::string(width - 2, border) << cross << Console::RESET << "\n";
+        std::cout << cross << std::string(width - 2, border) << cross << "\n";
     }
 
     static void printRule(char ch = '-', int width = REPORT_WIDTH) {
-        std::cout << Console::DIM << std::string(width, ch) << Console::RESET << "\n";
+        std::cout << std::string(width, ch) << "\n";
     }
 
     static void printBanner(const std::string& title, int width = REPORT_WIDTH) {
         std::cout << "\n";
         printRule('=', width);
-        std::cout << Console::BOLD << Console::CYAN << "  " << title << Console::RESET << "\n";
+        std::cout << "  " << title << "\n";
         printRule('=', width);
     }
 
     static void printSectionTitle(const std::string& title, int width = REPORT_WIDTH) {
-        std::cout << "\n" << Console::BOLD << Console::YELLOW << title << Console::RESET << "\n";
+        std::cout << "\n" << title << "\n";
         printRule('-', width);
     }
 
@@ -83,24 +82,24 @@ public:
     static void displayPatientTable(const PatientList& list, const std::string& title, size_t maxRows = 15) {
         std::cout << "\n";
         printRule('=');
-        std::cout << Console::BOLD << Console::CYAN << "  " << title << " (Total Records: " << list.size() << ")" << Console::RESET << "\n";
+        std::cout << "  " << title << " (Total Records: " << list.size() << ")\n";
         printRule('=');
 
         if (list.isEmpty()) {
-            std::cout << Console::YELLOW << "  [Notice] No records found." << Console::RESET << "\n";
+            std::cout << "  [Notice] No records found.\n";
             printRule('-');
             return;
         }
 
         printHorizontalLine();
-        std::cout << Console::BOLD << Console::YELLOW << "| " << std::left  << std::setw(12) << "Patient ID"
+        std::cout << "| " << std::left  << std::setw(12) << "Patient ID"
                   << "| " << std::right << std::setw(5)  << "Age"
                   << " | " << std::left  << std::setw(18) << "Care Type"
                   << "| " << std::right << std::setw(10) << "Stay (hrs)"
                   << "| " << std::right << std::setw(14) << "Rate (MYR/hr)"
                   << "| " << std::right << std::setw(11) << "Visits/Yr"
                   << "| " << std::right << std::setw(17) << "Total Cost (MYR)"
-                  << " |" << Console::RESET << "\n";
+                  << " |\n";
         printHorizontalLine();
 
         size_t printed = 0;
