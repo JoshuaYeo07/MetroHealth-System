@@ -139,6 +139,7 @@
     <ClCompile Include="PatientArray.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Console.hpp" />
     <ClInclude Include="Patient.hpp" />
     <ClInclude Include="PatientArray.hpp" />
     <ClInclude Include="DataLoader.hpp" />

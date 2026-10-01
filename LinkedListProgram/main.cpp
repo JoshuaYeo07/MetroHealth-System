@@ -6,6 +6,7 @@
 #include "PatientList.hpp"
 #include "Facility.hpp"
 #include "DataLoader.hpp"
+#include "Console.hpp"
 #include "TablePrinter.hpp"
 #include "HealthcareAnalytics.hpp"
 
@@ -47,11 +48,15 @@ static void printStorageSummary(const Facility* facilities) {
     }
 }
 
+static void printMenuItem(const char* key, const std::string& label, const char* keyColor = Console::CYAN) {
+    std::cout << "  " << Console::BOLD << keyColor << "[" << key << "]" << Console::RESET << " " << label << "\n";
+}
+
 // Reads a menu number in [minChoice, maxChoice]; returns -1 when input ends
 static int readChoice(int minChoice, int maxChoice) {
     std::string line;
     while (true) {
-        std::cout << "Enter choice (" << minChoice << "-" << maxChoice << "): ";
+        std::cout << Console::BOLD << Console::GREEN << "Enter choice (" << minChoice << "-" << maxChoice << "): " << Console::RESET;
         if (!std::getline(std::cin, line)) {
             return -1;
         }
@@ -61,20 +66,20 @@ static int readChoice(int minChoice, int maxChoice) {
         if (in >> choice && !(in >> extra) && choice >= minChoice && choice <= maxChoice) {
             return choice;
         }
-        std::cout << "  [Invalid] Please enter a number from " << minChoice << " to " << maxChoice << ".\n";
+        std::cout << Console::RED << "  [Invalid] Please enter a number from " << minChoice << " to " << maxChoice << "." << Console::RESET << "\n";
     }
 }
 
 // Task 4 dataset picker: each facility in the chain, then all datasets combined
 static void runAgeGroupMenu(const Facility* facilities, const PatientList& allPatients) {
-    std::cout << "\n  Select dataset for age group categorization:\n";
+    std::cout << "\n" << Console::BOLD << Console::YELLOW << "  Select dataset for age group categorization:" << Console::RESET << "\n";
     int option = 0;
     for (const Facility* facility = facilities; facility != nullptr; facility = facility->next) {
-        std::cout << "    [" << ++option << "] " << facility->title() << "\n";
+        std::cout << Console::CYAN << "    [" << ++option << "] " << Console::RESET << facility->title() << "\n";
     }
     int combinedOption = option + 1;
-    std::cout << "    [" << combinedOption << "] All Datasets Combined\n";
-    std::cout << "    [0] Back to main menu\n";
+    std::cout << Console::CYAN << "    [" << combinedOption << "] " << Console::RESET << "All Datasets Combined\n";
+    std::cout << Console::RED << "    [0] " << Console::RESET << "Back to main menu\n";
 
     int choice = readChoice(0, combinedOption);
     if (choice <= 0) {
@@ -102,9 +107,9 @@ static void runAllReports(const Facility* facilities, const PatientList& allPati
 }
 
 int main() {
-    std::cout << "====================================================================================\n";
-    std::cout << "  METROHEALTH SYSTEM - SMART HEALTHCARE & PATIENT MANAGEMENT (LINKED LIST PROTOTYPE)\n";
-    std::cout << "====================================================================================\n\n";
+    Console::enableColors();
+    Console::printLogo("SMART HEALTHCARE & PATIENT MANAGEMENT (LINKED LIST PROTOTYPE)");
+    std::cout << "\n";
 
     // The three datasets are chained as a singly linked list: A -> B -> C
     Facility facilityA("Dataset 1", "Facility A", "Facility A (General Hospital Hub)", "dataset1 facility_a.csv");
@@ -117,25 +122,26 @@ int main() {
     // Every patient from every dataset, for cross-facility analysis
     PatientList allPatients;
 
-    std::cout << "[Step 1] Loading MetroHealth Datasets into Custom Singly Linked Lists...\n";
+    std::cout << Console::BOLD << Console::MAGENTA << "[Step 1] Loading MetroHealth Datasets into Custom Singly Linked Lists..." << Console::RESET << "\n";
     for (Facility* facility = facilities; facility != nullptr; facility = facility->next) {
         facility->loadResult = DataLoader::loadCSV(facility->fileName, facility->patients);
         allPatients.appendAll(facility->patients);
         std::cout << "  " << std::left << std::setw(52) << facility->title()
+                  << (facility->loadResult >= 0 ? Console::GREEN : Console::RED)
                   << (facility->loadResult >= 0 ? std::to_string(facility->loadResult) + " records loaded" : "FAILED")
-                  << "\n";
+                  << Console::RESET << "\n";
     }
 
     bool running = true;
     while (running) {
-        std::cout << "\n------------------------------------------------------------------------------------\n";
-        std::cout << "  MAIN MENU\n";
-        std::cout << "------------------------------------------------------------------------------------\n";
-        std::cout << "  [1] Task 3 - Dataset Storage Summary & Sample Records\n";
-        std::cout << "  [2] Task 4 - Patient Demographic & Billing Categorization (by Age Group)\n";
-        std::cout << "  [3] Task 5 - Healthcare Expenditure & Service Analysis\n";
-        std::cout << "  [4] Run All Reports (Tasks 3 - 5)\n";
-        std::cout << "  [0] Exit\n";
+        std::cout << "\n" << Console::DIM << std::string(84, '-') << Console::RESET << "\n";
+        std::cout << Console::BOLD << Console::YELLOW << "  MAIN MENU" << Console::RESET << "\n";
+        std::cout << Console::DIM << std::string(84, '-') << Console::RESET << "\n";
+        printMenuItem("1", "Task 3 - Dataset Storage Summary & Sample Records");
+        printMenuItem("2", "Task 4 - Patient Demographic & Billing Categorization (by Age Group)");
+        printMenuItem("3", "Task 5 - Healthcare Expenditure & Service Analysis");
+        printMenuItem("4", "Run All Reports (Tasks 3 - 5)");
+        printMenuItem("0", "Exit", Console::RED);
 
         switch (readChoice(0, 4)) {
             case 1:
@@ -156,6 +162,6 @@ int main() {
         }
     }
 
-    std::cout << "\n[System Status] MetroHealth linked list session ended. All nodes released.\n";
+    std::cout << "\n" << Console::GREEN << "[System Status] MetroHealth linked list session ended. All nodes released." << Console::RESET << "\n";
     return 0;
 }

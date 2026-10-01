@@ -118,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CareTypeStats.hpp" />
+    <ClInclude Include="Console.hpp" />
     <ClInclude Include="DataLoader.hpp" />
     <ClInclude Include="Facility.hpp" />
     <ClInclude Include="HealthcareAnalytics.hpp" />
