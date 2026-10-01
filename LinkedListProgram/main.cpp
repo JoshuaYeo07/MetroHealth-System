@@ -9,6 +9,35 @@
 #include "TablePrinter.hpp"
 #include "HealthcareAnalytics.hpp"
 
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
+
+// Light green ANSI colour for the logo, reset back to the default console colour afterwards
+static const char* const LIGHT_GREEN = "\033[92m";
+static const char* const COLOR_RESET = "\033[0m";
+
+// "MetroHealth" logo, generated with pyfiglet's "standard" font and stored as plain ASCII
+static void printLogo() {
+#ifdef _WIN32
+    // Windows consoles only render ANSI colour codes once virtual terminal processing is enabled
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode = 0;
+    if (console != INVALID_HANDLE_VALUE && GetConsoleMode(console, &mode)) {
+        SetConsoleMode(console, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    }
+#endif
+    std::cout << LIGHT_GREEN << R"LOGO(
+ __  __      _             _   _            _ _   _
+|  \/  | ___| |_ _ __ ___ | | | | ___  __ _| | |_| |__
+| |\/| |/ _ \ __| '__/ _ \| |_| |/ _ \/ _` | | __| '_ \
+| |  | |  __/ |_| | | (_) |  _  |  __/ (_| | | |_| | | |
+|_|  |_|\___|\__|_|  \___/|_| |_|\___|\__,_|_|\__|_| |_|
+
+)LOGO" << COLOR_RESET;
+}
+
 // Task 3: how each dataset is stored in its singly linked list, followed by sample records
 static void printStorageSummary(const Facility* facilities) {
     TablePrinter::printBanner("TASK 3 - DATASET STORAGE SUMMARY (CUSTOM SINGLY LINKED LISTS)");
@@ -102,6 +131,7 @@ static void runAllReports(const Facility* facilities, const PatientList& allPati
 }
 
 int main() {
+    printLogo();
     std::cout << "====================================================================================\n";
     std::cout << "  METROHEALTH SYSTEM - SMART HEALTHCARE & PATIENT MANAGEMENT (LINKED LIST PROTOTYPE)\n";
     std::cout << "====================================================================================\n\n";
