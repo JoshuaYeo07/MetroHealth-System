@@ -14,8 +14,9 @@
 #include <windows.h>
 #endif
 
-// Light green ANSI colour for the logo, reset back to the default console colour afterwards
+// ANSI colours: light green for the logo, red for the exit/back menu options; reset back to the default console colour afterwards
 static const char* const LIGHT_GREEN = "\033[92m";
+static const char* const RED = "\033[91m";
 static const char* const COLOR_RESET = "\033[0m";
 
 // "MetroHealth" logo, generated with pyfiglet's "standard" font and stored as plain ASCII
@@ -43,14 +44,14 @@ static void printStorageSummary(const Facility* facilities) {
     TablePrinter::printBanner("TASK 3 - DATASET STORAGE SUMMARY (CUSTOM SINGLY LINKED LISTS)");
 
     auto printRow = [](const std::string& name, const std::string& status, const std::string& records,
-                       const std::string& nodeSize, const std::string& memory, const std::string& chain) {
+        const std::string& nodeSize, const std::string& memory, const std::string& chain) {
         std::cout << "| " << std::left  << std::setw(24) << name
-                  << "| " << std::setw(8) << status
+                << "| " << std::setw(8) << status
                   << "| " << std::right << std::setw(7)  << records
-                  << " | " << std::setw(12) << nodeSize
-                  << " | " << std::setw(16) << memory
+                << " | " << std::setw(12) << nodeSize
+                << " | " << std::setw(16) << memory
                   << " | " << std::left  << std::setw(17) << chain << " |\n";
-    };
+        };
 
     TablePrinter::printHorizontalLine(101);
     printRow("Facility / Dataset", "Status", "Records", "Node Size", "Memory Footprint", "Head -> Tail");
@@ -61,15 +62,15 @@ static void printStorageSummary(const Facility* facilities) {
             ? "(empty)"
             : list.getHead()->data.patientId + " -> " + list.getTail()->data.patientId;
         printRow(facility->datasetLabel + " - " + facility->shortName,
-                 facility->loadResult > 0 ? "SUCCESS" : "FAILED",
-                 std::to_string(list.size()),
-                 std::to_string(sizeof(PatientList::Node)) + " B",
-                 std::to_string(list.getMemoryUsageBytes()) + " B",
-                 chain);
+            facility->loadResult > 0 ? "SUCCESS" : "FAILED",
+            std::to_string(list.size()),
+            std::to_string(sizeof(PatientList::Node)) + " B",
+            std::to_string(list.getMemoryUsageBytes()) + " B",
+            chain);
     }
     TablePrinter::printHorizontalLine(101);
     std::cout << "  * Each node = one Patient record + one 'next' pointer. Nodes are allocated individually on the heap,\n"
-              << "    appended in O(1) through the tail pointer, and reached only by traversing from the head.\n";
+        << "    appended in O(1) through the tail pointer, and reached only by traversing from the head.\n";
 
     for (const Facility* facility = facilities; facility != nullptr; facility = facility->next) {
         TablePrinter::displayPatientTable(facility->patients, facility->title() + " - Sample Records", 5);
@@ -103,7 +104,7 @@ static void runAgeGroupMenu(const Facility* facilities, const PatientList& allPa
     }
     int combinedOption = option + 1;
     std::cout << "    [" << combinedOption << "] All Datasets Combined\n";
-    std::cout << "    [0] Back to main menu\n";
+    std::cout << "    " << RED << "[0] Back to main menu" << COLOR_RESET << "\n";
 
     int choice = readChoice(0, combinedOption);
     if (choice <= 0) {
@@ -152,8 +153,8 @@ int main() {
         facility->loadResult = DataLoader::loadCSV(facility->fileName, facility->patients);
         allPatients.appendAll(facility->patients);
         std::cout << "  " << std::left << std::setw(52) << facility->title()
-                  << (facility->loadResult >= 0 ? std::to_string(facility->loadResult) + " records loaded" : "FAILED")
-                  << "\n";
+            << (facility->loadResult >= 0 ? std::to_string(facility->loadResult) + " records loaded" : "FAILED")
+            << "\n";
     }
 
     bool running = true;
@@ -165,24 +166,24 @@ int main() {
         std::cout << "  [2] Task 4 - Patient Demographic & Billing Categorization (by Age Group)\n";
         std::cout << "  [3] Task 5 - Healthcare Expenditure & Service Analysis\n";
         std::cout << "  [4] Run All Reports (Tasks 3 - 5)\n";
-        std::cout << "  [0] Exit\n";
+        std::cout << "  " << RED << "[0] Exit" << COLOR_RESET << "\n";
 
         switch (readChoice(0, 4)) {
-            case 1:
-                printStorageSummary(facilities);
-                break;
-            case 2:
-                runAgeGroupMenu(facilities, allPatients);
-                break;
-            case 3:
-                HealthcareAnalytics::printExpenditureReport(facilities, allPatients);
-                break;
-            case 4:
-                runAllReports(facilities, allPatients);
-                break;
-            default:
-                running = false;
-                break;
+        case 1:
+            printStorageSummary(facilities);
+            break;
+        case 2:
+            runAgeGroupMenu(facilities, allPatients);
+            break;
+        case 3:
+            HealthcareAnalytics::printExpenditureReport(facilities, allPatients);
+            break;
+        case 4:
+            runAllReports(facilities, allPatients);
+            break;
+        default:
+            running = false;
+            break;
         }
     }
 
