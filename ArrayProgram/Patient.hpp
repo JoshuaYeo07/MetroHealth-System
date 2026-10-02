@@ -67,27 +67,6 @@ struct Patient {
         }
         return AgeGroup::Unknown;
     }
-
-    /**
-     * @brief Converts the AgeGroup enum to a human-readable string for table output.
-     * @return Descriptive age group string
-     */
-    std::string getAgeGroupName() const {
-        switch (getAgeGroup()) {
-            case AgeGroup::PediatricsAndAdolescents:
-                return "0-17: Pediatrics & Adolescents";
-            case AgeGroup::YoungAdultsStudents:
-                return "18-25: Young Adults / University Students";
-            case AgeGroup::WorkingAdultsEarlyCareer:
-                return "26-45: Working Adults (Early Career)";
-            case AgeGroup::WorkingAdultsLateCareer:
-                return "46-60: Working Adults (Late Career)";
-            case AgeGroup::SeniorCitizensGeriatric:
-                return "61-100: Senior Citizens / Geriatric Care";
-            default:
-                return "Unknown Age Bracket";
-        }
-    }
 };
 
 #endif // PATIENT_HPP
