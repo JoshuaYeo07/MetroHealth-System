@@ -5,7 +5,7 @@
 
 /**
  * @enum AgeGroup
- * @brief Categorization of patients based on demographic criteria (Assignment Task 4a).
+ * @brief Categorization of patients based on demographic criteria.
  */
 enum class AgeGroup {
     PediatricsAndAdolescents,   // 0-17
@@ -80,7 +80,7 @@ struct Patient {
           baseCostPerHour(rate), daysVisitsPerYear(visits) {}
 
     /**
-     * @brief Calculates total medical cost produced by the patient (Task 4b).
+     * @brief Calculates total medical cost produced by the patient.
      * Formula: Cost = Length of Stay x Base Cost Per Hour x Days Visits Per Year
      * @return Calculated medical cost in MYR
      */
@@ -89,7 +89,7 @@ struct Patient {
     }
 
     /**
-     * @brief Determines the demographic age group classification (Task 4a).
+     * @brief Determines the demographic age group classification.
      * @return AgeGroup enum value
      */
     AgeGroup getAgeGroup() const {
@@ -116,4 +116,4 @@ struct Patient {
     }
 };
 
-#endif // PATIENT_HPP
+#endif

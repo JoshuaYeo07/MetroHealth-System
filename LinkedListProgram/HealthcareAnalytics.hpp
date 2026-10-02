@@ -7,7 +7,7 @@
 
 /**
  * @class HealthcareAnalytics
- * @brief Task 4 and Task 5 console reports, computed purely by traversing singly linked lists.
+ * @brief Console reports, computed purely by traversing singly linked lists.
  */
 class HealthcareAnalytics {
 public:
@@ -28,4 +28,4 @@ public:
     static void printExpenditureReport(const Facility* facilities, const PatientList& allPatients);
 };
 
-#endif // HEALTHCARE_ANALYTICS_HPP
+#endif

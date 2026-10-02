@@ -13,8 +13,7 @@
  * - One heap-allocated node per patient, chained through a single forward pointer
  * - Head and tail pointers for O(1) push_back during dataset ingestion
  * - Sequential O(n) traversal (no random access) - the key contrast with an array
- * - Strict adherence to the Rule of 5 (deep copy & move semantics)
- * - Memory footprint tracking for Task 8 performance analysis
+ * - Memory footprint tracking
  */
 class PatientList {
 public:
@@ -40,12 +39,31 @@ public:
     ~PatientList();
 
     // Copy Semantics (Rule of 5)
-    PatientList(const PatientList& other);
-    PatientList& operator=(const PatientList& other);
+	PatientList(const PatientList& other); // Copy constructor - Construct by copying others
+	PatientList& operator=(const PatientList& other); // Copy assignment - Assign by copying others
+    /*
+    if (this != &other) {   // 1. Is b the same list as a? No, so continue
+        clear();            // 2. Delete b's old nodes (Tom is gone)
+        appendAll(other);   // 3. Copy a's patients into b (Ali, Siti, Raj)
+    }
+    return *this;           // 4. Return b
+    */
 
     // Move Semantics (Rule of 5)
-    PatientList(PatientList&& other) noexcept;
-    PatientList& operator=(PatientList&& other) noexcept;
+    PatientList(PatientList&& other) noexcept; // Construct by stealing others
+	PatientList& operator=(PatientList&& other) noexcept; // Assign by stealing others
+    /*
+    if (this != &other) {
+        clear();                 // free old nodes
+        head = other.head;       // steal other's chain
+        tail = other.tail;
+        count = other.count;
+        other.head = nullptr;    // leave other empty
+        other.tail = nullptr;
+        other.count = 0;
+    }
+    return *this;
+    */
 
     // Element Access (sequential traversal from head)
     Patient& at(size_t index);
@@ -60,18 +78,18 @@ public:
     void removeAt(size_t index);
     void clear();
 
-    // Re-attaches the list to a re-ordered chain of its own nodes (for sorting algorithms that relink nodes)
+    // Re-attaches the list to a re-ordered chain of its own nodes
     void relink(Node* newHead);
 
     // Capacity & Status
     size_t size() const;
     bool isEmpty() const;
 
-    // Performance & Memory Analysis (Task 8)
+    // Performance & Memory Analysis
     size_t getMemoryUsageBytes() const;
 
-    // Demographic Categorization (Task 4a)
+    // Demographic Categorization
     PatientList filterByAgeGroup(AgeGroup group) const;
 };
 
-#endif // PATIENT_LIST_HPP
+#endif

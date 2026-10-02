@@ -125,4 +125,4 @@ public:
     }
 };
 
-#endif // TABLE_PRINTER_HPP
+#endif

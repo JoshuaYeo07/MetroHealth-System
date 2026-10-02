@@ -31,4 +31,4 @@ struct Facility {
     }
 };
 
-#endif // FACILITY_HPP
+#endif

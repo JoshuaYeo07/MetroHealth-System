@@ -13,12 +13,9 @@
  */
 class DataLoader {
 private:
-    /**
-     * @brief Trims leading and trailing whitespace and carriage returns (\r, \n).
-     */
     static std::string trim(const std::string& str) {
-        size_t first = str.find_first_not_of(" \t\r\n");
-        if (first == std::string::npos) return "";
+        size_t first = str.find_first_not_of(" \t\r\n"); // find first char
+        if (first == std::string::npos) return ""; // npos = not found
         size_t last = str.find_last_not_of(" \t\r\n");
         return str.substr(first, (last - first + 1));
     }
@@ -28,15 +25,12 @@ private:
         return test.good();
     }
 
-    /**
-     * @brief Resolves relative path dynamically across common execution directories.
-     */
     static std::string resolvePath(const std::string& filename) {
         if (fileExists("../Datasets/" + filename)) return "../Datasets/" + filename;
         if (fileExists("Datasets/" + filename)) return "Datasets/" + filename;
         if (fileExists("../../Datasets/" + filename)) return "../../Datasets/" + filename;
         if (fileExists(filename)) return filename;
-        return "../Datasets/" + filename; // Default fallback
+        return "../Datasets/" + filename;
     }
 
 public:
@@ -96,4 +90,4 @@ public:
     }
 };
 
-#endif // DATA_LOADER_HPP
+#endif

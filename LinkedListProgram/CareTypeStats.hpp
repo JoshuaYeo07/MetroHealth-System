@@ -30,7 +30,7 @@ struct CostSummary {
         }
     }
 
-    // Average Cost = Total Medical Cost in Group / Number of Patients in Group (Task 4c)
+    // Average Cost = Total Medical Cost in Group / Number of Patients in Group
     double averageCost() const {
         return patientCount > 0 ? totalCost / patientCount : 0.0;
     }
@@ -176,7 +176,7 @@ public:
         return best;
     }
 
-    // Most preferred / requested care type (Task 4b); tied care types are joined with " / "
+    // Most preferred / requested care type; tied care types are joined with " / "
     std::string mostPreferred() const {
         int best = highestPatientCount();
         if (best == 0) {
@@ -195,4 +195,4 @@ public:
     }
 };
 
-#endif // CARE_TYPE_STATS_HPP
+#endif
