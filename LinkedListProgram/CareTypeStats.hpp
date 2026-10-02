@@ -99,10 +99,6 @@ private:
         return a->careType < b->careType;
     }
 
-    static bool hasHigherCost(const Node* a, const Node* b) {
-        return a->summary.totalCost > b->summary.totalCost;
-    }
-
 public:
     CareTypeStatList() : head(nullptr), tail(nullptr), count(0) {}
 
@@ -151,11 +147,6 @@ public:
     // Most requested first (ties broken alphabetically)
     void sortByPatientCount() {
         sortBy(hasMorePatients);
-    }
-
-    // Highest expenditure first
-    void sortByTotalCost() {
-        sortBy(hasHigherCost);
     }
 
     const Node* getHead() const {

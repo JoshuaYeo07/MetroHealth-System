@@ -159,7 +159,6 @@ namespace {
             };
 
         CareTypeStatList careTypes(patients);
-        careTypes.sortByTotalCost();
         for (const CareTypeStatList::Node* node = careTypes.getHead(); node != nullptr; node = node->next) {
             printRow(node->careType, node->summary);
         }
@@ -170,7 +169,7 @@ namespace {
 
     // Task 5b: total medical cost grouped by care type, per dataset and combined
     void printCostByCareType(const Facility* facilities, const PatientList& allPatients) {
-        TablePrinter::printSectionTitle("TASK 5b - TOTAL MEDICAL COST GROUPED BY CARE TYPE (highest expenditure first)");
+        TablePrinter::printSectionTitle("TASK 5b - TOTAL MEDICAL COST GROUPED BY CARE TYPE");
         for (const Facility* facility = facilities; facility != nullptr; facility = facility->next) {
             printCareTypeTable(facility->patients, facility->title());
         }
