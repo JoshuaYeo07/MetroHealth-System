@@ -137,12 +137,16 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PatientArray.cpp" />
+    <ClCompile Include="Analysis.cpp" />
+    <ClCompile Include="AnalysisPrinter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Patient.hpp" />
     <ClInclude Include="PatientArray.hpp" />
     <ClInclude Include="DataLoader.hpp" />
     <ClInclude Include="TablePrinter.hpp" />
+    <ClInclude Include="Analysis.hpp" />
+    <ClInclude Include="AnalysisPrinter.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
