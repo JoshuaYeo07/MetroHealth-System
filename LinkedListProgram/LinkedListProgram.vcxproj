@@ -112,7 +112,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HealthcareAnalytics.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PatientList.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CareTypeStats.hpp" />
+    <ClInclude Include="DataLoader.hpp" />
+    <ClInclude Include="Facility.hpp" />
+    <ClInclude Include="HealthcareAnalytics.hpp" />
+    <ClInclude Include="Patient.hpp" />
+    <ClInclude Include="PatientList.hpp" />
+    <ClInclude Include="TablePrinter.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

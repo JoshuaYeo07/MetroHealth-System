@@ -46,3 +46,5 @@ CMakeFiles/
 CMakeCache.txt
 out/
 build/
+
+.claude/
