@@ -66,39 +66,6 @@ private:
     Node* tail;
     size_t count;
 
-    // Stable insertion sort that relinks nodes; comesBefore(a, b) is true when a must precede b
-    void sortBy(bool (*comesBefore)(const Node*, const Node*)) {
-        Node* sorted = nullptr;
-        Node* current = head;
-        while (current != nullptr) {
-            Node* next = current->next;
-            if (sorted == nullptr || comesBefore(current, sorted)) {
-                current->next = sorted;
-                sorted = current;
-            } else {
-                Node* scan = sorted;
-                while (scan->next != nullptr && !comesBefore(current, scan->next)) {
-                    scan = scan->next;
-                }
-                current->next = scan->next;
-                scan->next = current;
-            }
-            current = next;
-        }
-        head = sorted;
-        tail = head;
-        while (tail != nullptr && tail->next != nullptr) {
-            tail = tail->next;
-        }
-    }
-
-    static bool hasMorePatients(const Node* a, const Node* b) {
-        if (a->summary.patientCount != b->summary.patientCount) {
-            return a->summary.patientCount > b->summary.patientCount;
-        }
-        return a->careType < b->careType;
-    }
-
 public:
     CareTypeStatList() : head(nullptr), tail(nullptr), count(0) {}
 
@@ -142,11 +109,6 @@ public:
         for (const PatientList::Node* current = patients.getHead(); current != nullptr; current = current->next) {
             record(current->data);
         }
-    }
-
-    // Most requested first (ties broken alphabetically)
-    void sortByPatientCount() {
-        sortBy(hasMorePatients);
     }
 
     const Node* getHead() const {

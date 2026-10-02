@@ -47,7 +47,6 @@ namespace {
         TablePrinter::printRule('-', GROUP_TABLE_WIDTH);
 
         CareTypeStatList careTypes(groupPatients);
-        careTypes.sortByPatientCount();
         for (const CareTypeStatList::Node* node = careTypes.getHead(); node != nullptr; node = node->next) {
         std::cout << std::left  << std::setw(20) << node->careType
                 << std::right << std::setw(15) << node->summary.patientCount
