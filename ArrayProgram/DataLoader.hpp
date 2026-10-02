@@ -97,17 +97,6 @@ public:
         file.close();
         return loadedCount;
     }
-
-    /**
-     * @brief Helper to load all three facility datasets into distinct arrays.
-     */
-    static bool loadAllFacilities(PatientArray& facilityA, PatientArray& facilityB, PatientArray& facilityC) {
-        int countA = loadCSV("dataset1 facility_a.csv", facilityA);
-        int countB = loadCSV("dataset2 facility_b.csv", facilityB);
-        int countC = loadCSV("dataset3_facility_c.csv", facilityC);
-
-        return (countA >= 0 && countB >= 0 && countC >= 0);
-    }
 };
 
 #endif // DATA_LOADER_HPP

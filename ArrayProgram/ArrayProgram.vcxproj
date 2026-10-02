@@ -139,6 +139,8 @@
     <ClCompile Include="PatientArray.cpp" />
     <ClCompile Include="Analysis.cpp" />
     <ClCompile Include="AnalysisPrinter.cpp" />
+    <ClCompile Include="Sorting.cpp" />
+    <ClCompile Include="SortingPrinter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Patient.hpp" />
@@ -147,6 +149,8 @@
     <ClInclude Include="TablePrinter.hpp" />
     <ClInclude Include="Analysis.hpp" />
     <ClInclude Include="AnalysisPrinter.hpp" />
+    <ClInclude Include="Sorting.hpp" />
+    <ClInclude Include="SortingPrinter.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
