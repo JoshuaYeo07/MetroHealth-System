@@ -8,6 +8,7 @@
 #include "DataLoader.hpp"
 #include "TablePrinter.hpp"
 #include "HealthcareAnalytics.hpp"
+#include "SortingAnalysis.hpp"
 
 #ifdef _WIN32
 #define NOMINMAX
@@ -95,9 +96,11 @@ static int readChoice(int minChoice, int maxChoice) {
     }
 }
 
-// Task 4 dataset picker: each facility in the chain, then all datasets combined
-static void runAgeGroupMenu(const Facility* facilities, const PatientList& allPatients) {
-    std::cout << "\n  Select dataset for age group categorization:\n";
+// Dataset picker: each facility in the chain, then all datasets combined.
+// Returns the chosen list (and its heading in titleOut), or nullptr when the user goes back.
+static const PatientList* chooseDataset(const Facility* facilities, const PatientList& allPatients,
+    const std::string& heading, std::string& titleOut) {
+    std::cout << "\n  " << heading << "\n";
     int option = 0;
     for (const Facility* facility = facilities; facility != nullptr; facility = facility->next) {
         std::cout << "    [" << ++option << "] " << facility->title() << "\n";
@@ -108,18 +111,69 @@ static void runAgeGroupMenu(const Facility* facilities, const PatientList& allPa
 
     int choice = readChoice(0, combinedOption);
     if (choice <= 0) {
-        return;
+        return nullptr;
     }
     if (choice == combinedOption) {
-        HealthcareAnalytics::printAgeGroupReport(allPatients, "All Datasets Combined");
-        return;
+        titleOut = "All Datasets Combined";
+        return &allPatients;
     }
 
     const Facility* selected = facilities;
     for (int i = 1; i < choice; ++i) {
         selected = selected->next;
     }
-    HealthcareAnalytics::printAgeGroupReport(selected->patients, selected->title());
+    titleOut = selected->title();
+    return &selected->patients;
+}
+
+// Task 4 dataset picker
+static void runAgeGroupMenu(const Facility* facilities, const PatientList& allPatients) {
+    std::string title;
+    const PatientList* selected = chooseDataset(facilities, allPatients, "Select dataset for age group categorization:", title);
+    if (selected != nullptr) {
+        HealthcareAnalytics::printAgeGroupReport(*selected, title);
+    }
+}
+
+// Sorting: pick a dataset, the field to sort by and the order, then compare bubble sort with merge sort
+static void runSortingMenu(const Facility* facilities, const PatientList& allPatients) {
+    std::string title;
+    const PatientList* dataset = chooseDataset(facilities, allPatients, "Select dataset to sort:", title);
+    if (dataset == nullptr) {
+        return;
+    }
+
+    std::cout << "\n  Sort by:\n";
+    std::cout << "    [1] Age\n";
+    std::cout << "    [2] Visit Duration (Length of Stay)\n";
+    std::cout << "    [3] Total Medical Cost\n";
+    std::cout << "    [4] All three fields (comparison)\n";
+    std::cout << "    " << RED << "[0] Back to main menu" << COLOR_RESET << "\n";
+    int fieldChoice = readChoice(0, 4);
+    if (fieldChoice <= 0) {
+        return;
+    }
+
+    std::cout << "\n  Order:\n";
+    std::cout << "    [1] Ascending (lowest first)\n";
+    std::cout << "    [2] Descending (highest first)\n";
+    int orderChoice = readChoice(1, 2);
+    if (orderChoice <= 0) {
+        return;
+    }
+    bool ascending = (orderChoice == 1);
+
+    if (fieldChoice == 4) {
+        SortingAnalysis::printAllFieldsReport(*dataset, title, ascending);
+        return;
+    }
+    SortField field = SortField::Age;
+    if (fieldChoice == 2) {
+        field = SortField::VisitDuration;
+    } else if (fieldChoice == 3) {
+        field = SortField::TotalCost;
+    }
+    SortingAnalysis::printSortingReport(*dataset, title, field, ascending);
 }
 
 static void runAllReports(const Facility* facilities, const PatientList& allPatients) {
@@ -165,10 +219,11 @@ int main() {
         std::cout << "  [1] Task 3 - Dataset Storage Summary & Sample Records\n";
         std::cout << "  [2] Task 4 - Patient Demographic & Billing Categorization (by Age Group)\n";
         std::cout << "  [3] Task 5 - Healthcare Expenditure & Service Analysis\n";
-        std::cout << "  [4] Run All Reports (Tasks 3 - 5)\n";
+        std::cout << "  [4] Sorting & Performance Analysis (Bubble Sort vs Merge Sort)\n";
+        std::cout << "  [5] Run All Reports (Tasks 3 - 5)\n";
         std::cout << "  " << RED << "[0] Exit" << COLOR_RESET << "\n";
 
-        switch (readChoice(0, 4)) {
+        switch (readChoice(0, 5)) {
         case 1:
             printStorageSummary(facilities);
             break;
@@ -179,6 +234,9 @@ int main() {
             HealthcareAnalytics::printExpenditureReport(facilities, allPatients);
             break;
         case 4:
+            runSortingMenu(facilities, allPatients);
+            break;
+        case 5:
             runAllReports(facilities, allPatients);
             break;
         default:
