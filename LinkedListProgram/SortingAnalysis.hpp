@@ -24,7 +24,7 @@ public:
                                    SortField field, bool ascending);
 
     /**
-     * @brief Runs the comparison for all three fields on one dataset and prints a performance and
+     * @brief Runs the comparison for all four fields on one dataset and prints a performance and
      * memory table for each, followed by the complexity table.
      */
     static void printAllFieldsReport(const PatientList& patients, const std::string& datasetTitle, bool ascending);

@@ -13,7 +13,8 @@
 enum class SortField {
     Age,
     VisitDuration,   // Length of Stay (hours)
-    TotalCost        // Length of Stay x Base Cost Per Hour x Days Visits Per Year
+    TotalCost,       // Length of Stay x Base Cost Per Hour x Days Visits Per Year
+    CareType         // Care type text, alphabetical. Not a Task 6 field; added so Task 7 can search sorted by care type
 };
 
 /**
@@ -63,12 +64,17 @@ public:
     static bool costAscending(const Node* a, const Node* b)  { return a->data.calculateTotalCost() < b->data.calculateTotalCost(); }
     static bool costDescending(const Node* a, const Node* b) { return a->data.calculateTotalCost() > b->data.calculateTotalCost(); }
 
+    // Alphabetical, case-sensitive (std::string comparison). Equal care types keep their original order
+    static bool careTypeAscending(const Node* a, const Node* b)  { return a->data.careType < b->data.careType; }
+    static bool careTypeDescending(const Node* a, const Node* b) { return a->data.careType > b->data.careType; }
+
     // Picks the comparison rule for a field and direction
     static Comparator comparatorFor(SortField field, bool ascending) {
         switch (field) {
         case SortField::Age:           return ascending ? ageAscending : ageDescending;
         case SortField::VisitDuration: return ascending ? stayAscending : stayDescending;
         case SortField::TotalCost:     return ascending ? costAscending : costDescending;
+        case SortField::CareType:      return ascending ? careTypeAscending : careTypeDescending;
         }
         return ageAscending;
     }
@@ -78,6 +84,7 @@ public:
         case SortField::Age:           return "Age";
         case SortField::VisitDuration: return "Visit Duration (Length of Stay)";
         case SortField::TotalCost:     return "Total Medical Cost";
+        case SortField::CareType:      return "Care Type";
         }
         return "Unknown";
     }
@@ -170,7 +177,7 @@ public:
      * unsorted and sorted versions can be used side by side (e.g. searching unsorted vs sorted data).
      * The copy costs one extra list of memory (about source.getMemoryUsageBytes()).
      * @param source List to copy and sort
-     * @param field Age, Visit Duration or Total Medical Cost
+     * @param field Age, Visit Duration, Total Medical Cost or Care Type
      * @param ascending true for lowest first, false for highest first
      * @param algorithm Bubble or Merge (merge sort by default, it is much faster)
      */

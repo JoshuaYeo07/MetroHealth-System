@@ -18,7 +18,7 @@ static PatientList sortedCopy(const PatientList& source, SortField field, bool a
 
 | Parameter | Options |
 |---|---|
-| `field` | `SortField::Age`, `SortField::VisitDuration` (length of stay, hours), `SortField::TotalCost` |
+| `field` | `SortField::Age`, `SortField::VisitDuration` (length of stay, hours), `SortField::TotalCost`, `SortField::CareType` (alphabetical A-Z) |
 | `ascending` | `true` = lowest first, `false` = highest first |
 | `algorithm` | `SortAlgorithm::Merge` (default, O(n log n)) or `SortAlgorithm::Bubble` (O(n^2)) |
 
@@ -28,6 +28,7 @@ Examples:
 PatientList byAge          = PatientSorter::sortedCopy(*dataset, SortField::Age, true);
 PatientList byStay         = PatientSorter::sortedCopy(*dataset, SortField::VisitDuration, true);
 PatientList byCost         = PatientSorter::sortedCopy(*dataset, SortField::TotalCost, false);   // highest cost first
+PatientList byCareType     = PatientSorter::sortedCopy(*dataset, SortField::CareType, true);     // A-Z, grouped by care type
 PatientList byBubbleSort   = PatientSorter::sortedCopy(*dataset, SortField::Age, true, SortAlgorithm::Bubble);
 ```
 
@@ -39,7 +40,12 @@ Both algorithms give the **identical order** (same rules, both stable), so the c
 |---|---|
 | Age group (e.g. 61-100) | `SortField::Age` |
 | Visit duration threshold (e.g. > 24 hours) | `SortField::VisitDuration` |
-| Specific care type (e.g. Emergency) | **not available yet**, see section 6 |
+| Specific care type (e.g. Emergency) | `SortField::CareType` |
+
+Notes on `SortField::CareType`:
+- It compares the `careType` text with plain `std::string` ordering, so it is **case-sensitive**. All three datasets use the same capitalisation (Emergency, Inpatient, Outpatient, Rehabilitation, Routine Checkup, Vaccination), so this is fine, but match that exact text when searching.
+- After sorting, all patients with the same care type sit next to each other, so a search for one care type can stop as soon as it passes the last match (and binary search works if you copy the nodes into an array, as the linked list has no random access).
+- Patients with the same care type keep their original relative order (stable sort).
 
 ### If you also want the sort's own numbers (time, comparisons...)
 
