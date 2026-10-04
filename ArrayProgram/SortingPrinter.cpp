@@ -100,10 +100,11 @@ void SortingPrinter::printAlgorithmicObservations() {
     std::cout << "     - For N = 600 records, Bubble Sort requires ~179,000 comparisons (~100 ms), whereas Merge Sort only\n";
     std::cout << "       requires ~4,700 comparisons (~1.2 ms) - making Merge Sort ~90x-100x faster.\n";
     std::cout << "\n  2. Memory Footprint (Base Data) vs. Memory Usage (Sort Extra):\n";
-    std::cout << "     - Memory Footprint is the base storage occupied by the 600 patient records in the Dynamic Array\n";
-    std::cout << "       (600 * sizeof(Patient) = 67,200 Bytes / 67.2 KB), which exists before and after sorting.\n";
+    std::cout << "     - Memory Footprint estimates the allocated patient-array buffer, including unused slots:\n";
+    std::cout << "       array capacity * sizeof(Patient). The table calculates this for the current build and array.\n";
     std::cout << "     - Memory Usage (Sort) is the extra workspace RAM allocated by the algorithm while running:\n";
-    std::cout << "       * Bubble Sort runs strictly in-place, requiring 0 Bytes of extra memory (O(1)).\n";
-    std::cout << "       * Merge Sort requires a temporary scratchpad buffer of 67,200 Bytes (O(n)) to merge sub-arrays,\n";
+    std::cout << "       * Bubble Sort allocates no separate sorting buffer (0 Bytes); it uses a temporary patient for swaps (O(1)).\n";
+    std::cout << "       * Merge Sort allocates record count * sizeof(Patient) for its temporary buffer (O(n)),\n";
     std::cout << "         which is immediately freed upon completion.\n";
+    std::cout << "     - These estimates exclude container metadata, additional string allocations, stack and allocation overhead.\n";
 }
