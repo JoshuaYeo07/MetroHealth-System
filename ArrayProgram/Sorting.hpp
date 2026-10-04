@@ -28,7 +28,7 @@ struct SortMetrics {
     long long executionTimeMicrosec;  // Measured execution time in microseconds (std::chrono)
     uint64_t comparisons;             // Total element-to-element comparisons performed
     uint64_t swapsMovements;          // Total swaps (Bubble Sort) or buffer movements (Merge Sort)
-    size_t memoryFootprintBytes;      // Base memory footprint of the container: N * sizeof(Patient)
+    size_t memoryFootprintBytes;      // Estimated allocated patient buffer: capacity * sizeof(Patient)
     size_t memoryUsageBytes;          // Extra temporary memory allocated during sorting (0 B vs O(n) scratchpad)
 };
 

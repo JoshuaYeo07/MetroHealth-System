@@ -81,7 +81,7 @@ SortMetrics SortingEngine::bubbleSort(PatientArray& arr, SortCriterion criterion
     m.swapsMovements = 0;
 
     size_t n = arr.size();
-    m.memoryFootprintBytes = n * sizeof(Patient); // Base size of the array
+    m.memoryFootprintBytes = arr.getCapacity() * sizeof(Patient); // Allocated patient buffer, including unused slots
     m.memoryUsageBytes = 0;                       // Strictly in-place, 0 extra heap bytes
 
     if (n <= 1) {
@@ -126,7 +126,7 @@ SortMetrics SortingEngine::mergeSort(PatientArray& arr, SortCriterion criterion)
     m.swapsMovements = 0;
 
     size_t n = arr.size();
-    m.memoryFootprintBytes = n * sizeof(Patient); // Base size of the array
+    m.memoryFootprintBytes = arr.getCapacity() * sizeof(Patient); // Allocated patient buffer, including unused slots
     m.memoryUsageBytes = n * sizeof(Patient);     // Temporary scratchpad heap buffer
 
     if (n <= 1) {
