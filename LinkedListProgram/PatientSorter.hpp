@@ -30,11 +30,11 @@ enum class SortAlgorithm {
  * @brief What one run of a sorting algorithm did, used to compare the algorithms.
  */
 struct SortStats {
-    double elapsedMs;          // Wall-clock time of the sort
-    long long comparisons;     // Calls to the comparison rule
-    long long moves;           // Node relinks: one adjacent swap (bubble) or one node placed in the merged output (merge)
-    size_t maxDepth;           // Deepest recursion level reached (0 for the iterative bubble sort)
-    size_t auxBytes;           // Estimated working memory needed beyond the list itself
+    double elapsedMs;          // How long the sort took, in milliseconds
+    long long comparisons;     // How many times two patients were compared
+    long long moves;           // How many nodes were re-coupled
+    size_t maxDepth;           // Deepest level of recursion reached
+    size_t auxBytes;           // Estimated extra memory the algorithm needed beyond the list itself
 
     SortStats() : elapsedMs(0.0), comparisons(0), moves(0), maxDepth(0), auxBytes(0) {}
 };
@@ -114,7 +114,7 @@ public:
             swapped = false;
             Node* previous = nullptr;
             Node* current = head;
-            while (current->next != lastSorted) {
+            while (current->next != lastSorted) { // Inner loop move the largest one to list[-1]
                 Node* next = current->next;
                 ++stats.comparisons;
                 if (comesBefore(next, current)) {
@@ -122,7 +122,7 @@ public:
                     current->next = next->next;
                     next->next = current;
                     if (previous == nullptr) {
-                        head = next;
+                        head = next; // sorted list's head
                     } else {
                         previous->next = next;
                     }
@@ -139,7 +139,7 @@ public:
         list.relink(head);
 
         stats.elapsedMs = elapsedSince(start);
-        stats.maxDepth = 0;
+        stats.maxDepth = 0; // use loop, no max depth
         stats.auxBytes = BUBBLE_AUX_BYTES;
         return stats;
     }

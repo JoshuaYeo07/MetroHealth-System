@@ -129,7 +129,7 @@ namespace {
     void printMemoryTable(const Comparison& c) {
         const int widths[] = { 14, 18, 11, 9, 14, 14 };
         const int width = tableWidth(widths);
-        const std::string header[] = { "Algorithm", "List Footprint (B)", "Extra Nodes", "Max Depth", "Aux Memory (B)", "Peak Total (B)" };
+        const std::string header[] = { "Algorithm", "Mem Footprint (B)", "Extra Nodes", "Max Depth", "Aux Memory (B)", "Peak Total (B)" };
         const std::string bubbleRow[] = {
             "Bubble Sort", std::to_string(c.listBytes), "0", std::to_string(c.bubble.maxDepth),
             std::to_string(c.bubble.auxBytes), std::to_string(c.listBytes + c.bubble.auxBytes) };
