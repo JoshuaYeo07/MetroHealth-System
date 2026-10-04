@@ -22,7 +22,7 @@ namespace {
         bool mergeSorted;
         size_t recordCount;
         size_t listBytes;
-        PatientList sorted;     // The merge sort result, used for the sample table
+        PatientList sorted;     // merge sort result, used for the sample table
 
         Comparison() : bubbleSorted(false), mergeSorted(false), recordCount(0), listBytes(0) {}
     };
@@ -144,9 +144,8 @@ namespace {
         printRow(mergeRow, widths, 1);
         TablePrinter::printHorizontalLine(width);
 
-        std::cout << "  * Both sorts relink the existing nodes, so the list itself takes the same memory and no node is allocated.\n"
-                  << "  * Aux Memory is an estimate of the working variables (bubble) or recursion stack (merge) beyond the list.\n"
-                  << "    Max Depth is the deepest recursion level reached (bubble sort is a loop, so 0).\n";
+        std::cout << "  * Aux Memory is an estimate of the working variables (bubble) or recursion stack (merge) beyond the list.\n"
+                  << "  * Max Depth is the deepest recursion level reached (bubble sort is a loop, so 0).\n";
     }
 
     void printComplexityTable() {
@@ -166,7 +165,7 @@ namespace {
         std::cout << "  * n = number of patient records. Bubble sort stops early when a sweep makes no swap, which gives its O(n) best case.\n";
     }
 
-} // namespace
+}
 
 void SortingAnalysis::printSortingReport(const PatientList& patients, const std::string& datasetTitle,
                                          SortField field, bool ascending) {
