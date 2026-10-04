@@ -127,14 +127,14 @@ namespace {
     }
 
     void printMemoryTable(const Comparison& c) {
-        const int widths[] = { 14, 18, 11, 9, 14, 14 };
+        const int widths[] = { 14, 10, 18, 14, 14 };
         const int width = tableWidth(widths);
-        const std::string header[] = { "Algorithm", "Mem Footprint (B)", "Extra Nodes", "Max Depth", "Aux Memory (B)", "Peak Total (B)" };
+        const std::string header[] = { "Algorithm", "Max Depth", "Mem Footprint (B)", "Aux Memory (B)", "Peak Total (B)" };
         const std::string bubbleRow[] = {
-            "Bubble Sort", std::to_string(c.listBytes), "0", std::to_string(c.bubble.maxDepth),
+            "Bubble Sort", std::to_string(c.bubble.maxDepth), std::to_string(c.listBytes),
             std::to_string(c.bubble.auxBytes), std::to_string(c.listBytes + c.bubble.auxBytes) };
         const std::string mergeRow[] = {
-            "Merge Sort", std::to_string(c.listBytes), "0", std::to_string(c.merge.maxDepth),
+            "Merge Sort", std::to_string(c.merge.maxDepth), std::to_string(c.listBytes),
             std::to_string(c.merge.auxBytes), std::to_string(c.listBytes + c.merge.auxBytes) };
 
         TablePrinter::printHorizontalLine(width);
@@ -150,11 +150,11 @@ namespace {
     }
 
     void printComplexityTable() {
-        const int widths[] = { 14, 20, 12, 12, 20, 7 };
+        const int widths[] = { 14, 20, 12, 12, 20 };
         const int width = tableWidth(widths);
-        const std::string header[] = { "Algorithm", "Best Case", "Average", "Worst Case", "Extra Space", "Stable" };
-        const std::string bubbleRow[] = { "Bubble Sort", "O(n) (no swaps)", "O(n^2)", "O(n^2)", "O(1)", "Yes" };
-        const std::string mergeRow[] = { "Merge Sort", "O(n log n)", "O(n log n)", "O(n log n)", "O(log n) stack", "Yes" };
+        const std::string header[] = { "Algorithm", "Best Case", "Average", "Worst Case", "Extra Space" };
+        const std::string bubbleRow[] = { "Bubble Sort", "O(n) (no swaps)", "O(n^2)", "O(n^2)", "O(1)" };
+        const std::string mergeRow[] = { "Merge Sort", "O(n log n)", "O(n log n)", "O(n log n)", "O(log n) stack" };
 
         TablePrinter::printHorizontalLine(width);
         printRow(header, widths, LEFT_ALIGN_ALL);     // every column left aligned
