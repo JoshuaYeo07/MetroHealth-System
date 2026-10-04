@@ -93,18 +93,40 @@ void SortingPrinter::printSortedPreview(const PatientArray& arr, const std::stri
 }
 
 void SortingPrinter::printAlgorithmicObservations() {
-    std::cout << "\n>>> PERFORMANCE ANALYSIS & BENCHMARK EXPLANATION (TASK 6 & TASK 8):\n";
-    std::cout << "  1. Time Complexity (Theoretical) vs. Execution Time (Actual):\n";
-    std::cout << "     - Time Complexity is the Big-O mathematical growth rate: Bubble Sort is O(n^2) while Merge Sort is O(n log n).\n";
-    std::cout << "     - Execution Time is the actual stopwatch measurement via std::chrono.\n";
-    std::cout << "     - For N = 600 records, Bubble Sort requires ~179,000 comparisons (~100 ms), whereas Merge Sort only\n";
-    std::cout << "       requires ~4,700 comparisons (~1.2 ms) - making Merge Sort ~90x-100x faster.\n";
-    std::cout << "\n  2. Memory Footprint (Base Data) vs. Memory Usage (Sort Extra):\n";
-    std::cout << "     - Memory Footprint estimates the allocated patient-array buffer, including unused slots:\n";
-    std::cout << "       array capacity * sizeof(Patient). The table calculates this for the current build and array.\n";
-    std::cout << "     - Memory Usage (Sort) is the extra workspace RAM allocated by the algorithm while running:\n";
-    std::cout << "       * Bubble Sort allocates no separate sorting buffer (0 Bytes); it uses a temporary patient for swaps (O(1)).\n";
-    std::cout << "       * Merge Sort allocates record count * sizeof(Patient) for its temporary buffer (O(n)),\n";
-    std::cout << "         which is immediately freed upon completion.\n";
-    std::cout << "     - These estimates exclude container metadata, additional string allocations, stack and allocation overhead.\n";
+    std::cout << R"(
+>>> PERFORMANCE ANALYSIS & BENCHMARK EXPLANATION (TASK 6 & TASK 8):
+
+1. Time Complexity
+   Describes how sorting work grows as the number of patients increases.
+   - Bubble Sort: O(n^2) on average and in the worst case.
+     Its early-exit feature gives O(n) when the data is already sorted.
+   - Merge Sort: O(n log n), making it more efficient for larger datasets.
+
+2. Execution Time
+   Shows how long the sorting phase took in milliseconds.
+   A lower value means sorting finished faster in this run.
+   Results can vary depending on the build, computer, and background activity.
+   Dataset copying and Merge Sort buffer allocation/cleanup are excluded.
+
+3. Comparisons
+   Counts how often two patients' ages, visit durations, or total costs
+   are compared to decide their order.
+   It does not count every operation, such as copying or swapping patients.
+   Fewer comparisons can help explain faster execution.
+
+4. Memory Footprint
+   Estimates the allocated patient-array buffer, including unused slots.
+   Calculation: array capacity x size of one Patient object.
+   Unused slots still occupy memory.
+
+5. Memory Usage (Sort)
+   Estimates the separate temporary buffer allocated for sorting.
+   - Bubble Sort: no separate buffer, so this column shows 0 B.
+     It still uses a temporary patient when swapping.
+   - Merge Sort: creates a temporary array with one slot per patient.
+     This buffer is freed after sorting.
+
+Memory estimates exclude container metadata, additional string allocations,
+stack variables, recursion, and allocation overhead.
+)";
 }
