@@ -7,8 +7,10 @@
 #include "Facility.hpp"
 #include "DataLoader.hpp"
 #include "TablePrinter.hpp"
+#include "CareTypeStats.hpp"
 #include "HealthcareAnalytics.hpp"
 #include "SortingAnalysis.hpp"
+#include "SearchingAnalysis.hpp"
 
 #ifdef _WIN32
 #define NOMINMAX
@@ -78,11 +80,11 @@ static void printStorageSummary(const Facility* facilities) {
     }
 }
 
-// Reads a menu number in [minChoice, maxChoice]; returns -1 when input ends
-static int readChoice(int minChoice, int maxChoice) {
+// Reads a whole number in [minChoice, maxChoice]; returns -1 when input ends
+static int readChoice(int minChoice, int maxChoice, const std::string& prompt = "Enter choice") {
     std::string line;
     while (true) {
-        std::cout << "Enter choice (" << minChoice << "-" << maxChoice << "): ";
+        std::cout << prompt << " (" << minChoice << "-" << maxChoice << "): ";
         if (!std::getline(std::cin, line)) {
             return -1;
         }
@@ -179,13 +181,102 @@ static void runSortingMenu(const Facility* facilities, const PatientList& allPat
     SortingAnalysis::printSortingReport(*dataset, title, field, ascending);
 }
 
+// Longest visit duration threshold the search menu accepts, in hours
+static const int MAX_STAY_THRESHOLD_HOURS = 1000;
+
+// Asks how the sorted copy used by a search should be ordered. The order decides whether the matching
+// records end up near the head or near the tail, and so how early the search on sorted data can stop.
+// Returns 1 for ascending, 2 for descending, or -1 when input ends.
+static int chooseSortedOrder() {
+    std::cout << "\n  Order of the sorted data:\n";
+    std::cout << "    [1] Ascending (youngest, A-Z or shortest visit first)\n";
+    std::cout << "    [2] Descending (oldest, Z-A or longest visit first)\n";
+    return readChoice(1, 2);
+}
+
+// Task 7: pick a dataset, what to search for and how the sorted data is ordered, then compare
+// linear search with sentinel linear search on the unsorted data and on sorted data
+static void runSearchingMenu(const Facility* facilities, const PatientList& allPatients) {
+    std::string title;
+    const PatientList* dataset = chooseDataset(facilities, allPatients, "Select dataset to search:", title);
+    if (dataset == nullptr) {
+        return;
+    }
+
+    std::cout << "\n  Search by:\n";
+    std::cout << "    [1] Age Group\n";
+    std::cout << "    [2] Care Type\n";
+    std::cout << "    [3] Visit Duration Threshold (visits longer than a number of hours)\n";
+    std::cout << "    " << RED << "[0] Back to main menu" << COLOR_RESET << "\n";
+    int searchChoice = readChoice(0, 3);
+    if (searchChoice <= 0) {
+        return;
+    }
+
+    SearchCriteria criteria;
+    if (searchChoice == 1) {
+        std::cout << "\n  Age group:\n";
+        for (int g = 0; g < AGE_GROUP_COUNT; ++g) {
+            std::cout << "    [" << (g + 1) << "] " << ageGroupName(static_cast<AgeGroup>(g)) << "\n";
+        }
+        int groupChoice = readChoice(1, AGE_GROUP_COUNT);
+        if (groupChoice <= 0) {
+            return;
+        }
+        criteria = SearchCriteria::forAgeGroup(static_cast<AgeGroup>(groupChoice - 1));
+    } else if (searchChoice == 2) {
+        // Offer the care types that actually occur in the chosen dataset
+        CareTypeStatList careTypes(*dataset);
+        if (careTypes.size() == 0) {
+            std::cout << "  [Notice] No records to search.\n";
+            return;
+        }
+        std::cout << "\n  Care type:\n";
+        int option = 0;
+        for (const CareTypeStatList::Node* node = careTypes.getHead(); node != nullptr; node = node->next) {
+            std::cout << "    [" << ++option << "] " << node->careType
+                      << " (" << node->summary.patientCount << " patients)\n";
+        }
+        int careChoice = readChoice(1, option);
+        if (careChoice <= 0) {
+            return;
+        }
+        const CareTypeStatList::Node* selected = careTypes.getHead();
+        for (int i = 1; i < careChoice; ++i) {
+            selected = selected->next;
+        }
+        criteria = SearchCriteria::forCareType(selected->careType);
+    } else {
+        std::cout << "\n";
+        int hours = readChoice(0, MAX_STAY_THRESHOLD_HOURS, "  Find visits longer than how many hours?");
+        if (hours < 0) {
+            return;
+        }
+        criteria = SearchCriteria::forStayLongerThan(hours);
+    }
+
+    int orderChoice = chooseSortedOrder();
+    if (orderChoice <= 0) {
+        return;
+    }
+    SearchingAnalysis::printSearchReport(*dataset, title, criteria, orderChoice == 1);
+}
+
+// Runs every report that needs no input, in menu order. The sorting report, which normally asks what
+// to sort by, uses all datasets combined with preset choices. The searching experiment is not
+// included: it has to be told what to search for, so it only runs from its own menu option.
 static void runAllReports(const Facility* facilities, const PatientList& allPatients) {
+    const std::string combinedTitle = "All Datasets Combined";
+
     printStorageSummary(facilities);
     for (const Facility* facility = facilities; facility != nullptr; facility = facility->next) {
         HealthcareAnalytics::printAgeGroupReport(facility->patients, facility->title());
     }
-    HealthcareAnalytics::printAgeGroupReport(allPatients, "All Datasets Combined");
+    HealthcareAnalytics::printAgeGroupReport(allPatients, combinedTitle);
     HealthcareAnalytics::printExpenditureReport(facilities, allPatients);
+
+    // Sorting: bubble sort vs merge sort on all three fields, lowest first
+    SortingAnalysis::printAllFieldsReport(allPatients, combinedTitle, true);
 }
 
 int main() {
@@ -219,14 +310,15 @@ int main() {
         std::cout << "\n------------------------------------------------------------------------------------\n";
         std::cout << "  MAIN MENU\n";
         std::cout << "------------------------------------------------------------------------------------\n";
-        std::cout << "  [1] Task 3 - Dataset Storage Summary & Sample Records\n";
-        std::cout << "  [2] Task 4 - Patient Demographic & Billing Categorization (by Age Group)\n";
-        std::cout << "  [3] Task 5 - Healthcare Expenditure & Service Analysis\n";
+        std::cout << "  [1] Dataset Storage Summary & Sample Records\n";
+        std::cout << "  [2] Patient Demographic & Billing Categorization (by Age Group)\n";
+        std::cout << "  [3] Healthcare Expenditure & Service Analysis\n";
         std::cout << "  [4] Sorting & Performance Analysis (Bubble Sort vs Merge Sort)\n";
-        std::cout << "  [5] Run All Reports (Tasks 3 - 5)\n";
+        std::cout << "  [5] Searching Experiments (Linear Search vs Sentinel Linear Search)\n";
+        std::cout << "  [6] Run All Reports\n";
         std::cout << "  " << RED << "[0] Exit" << COLOR_RESET << "\n";
 
-        switch (readChoice(0, 5)) {
+        switch (readChoice(0, 6)) {
         case 1:
             printStorageSummary(facilities);
             break;
@@ -240,6 +332,9 @@ int main() {
             runSortingMenu(facilities, allPatients);
             break;
         case 5:
+            runSearchingMenu(facilities, allPatients);
+            break;
+        case 6:
             runAllReports(facilities, allPatients);
             break;
         default:
