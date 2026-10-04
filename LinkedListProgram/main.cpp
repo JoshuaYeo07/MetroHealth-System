@@ -147,23 +147,24 @@ static void runSortingMenu(const Facility* facilities, const PatientList& allPat
     std::cout << "    [1] Age\n";
     std::cout << "    [2] Visit Duration (Length of Stay)\n";
     std::cout << "    [3] Total Medical Cost\n";
-    std::cout << "    [4] All three fields (comparison)\n";
+    std::cout << "    [4] Care Type (alphabetical)\n";
+    std::cout << "    [5] All fields (comparison)\n";
     std::cout << "    " << RED << "[0] Back to main menu" << COLOR_RESET << "\n";
-    int fieldChoice = readChoice(0, 4);
+    int fieldChoice = readChoice(0, 5);
     if (fieldChoice <= 0) {
         return;
     }
 
     std::cout << "\n  Order:\n";
     std::cout << "    [1] Ascending (lowest first)\n";
-    std::cout << "    [2] Descending (highest first)\n";
+    std::cout << "    [2] Descending (highest first, Z-A for care type)\n";
     int orderChoice = readChoice(1, 2);
     if (orderChoice <= 0) {
         return;
     }
     bool ascending = (orderChoice == 1);
 
-    if (fieldChoice == 4) {
+    if (fieldChoice == 5) {
         SortingAnalysis::printAllFieldsReport(*dataset, title, ascending);
         return;
     }
@@ -172,6 +173,8 @@ static void runSortingMenu(const Facility* facilities, const PatientList& allPat
         field = SortField::VisitDuration;
     } else if (fieldChoice == 3) {
         field = SortField::TotalCost;
+    } else if (fieldChoice == 4) {
+        field = SortField::CareType;
     }
     SortingAnalysis::printSortingReport(*dataset, title, field, ascending);
 }

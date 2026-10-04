@@ -13,7 +13,8 @@
 enum class SortField {
     Age,
     VisitDuration,   // Length of Stay (hours)
-    TotalCost        // Length of Stay x Base Cost Per Hour x Days Visits Per Year
+    TotalCost,       // Length of Stay x Base Cost Per Hour x Days Visits Per Year
+    CareType         // Care type text, alphabetical. Not a Task 6 field; added so Task 7 can search sorted by care type
 };
 
 /**
@@ -30,11 +31,11 @@ enum class SortAlgorithm {
  * @brief What one run of a sorting algorithm did, used to compare the algorithms.
  */
 struct SortStats {
-    double elapsedMs;          // Wall-clock time of the sort
-    long long comparisons;     // Calls to the comparison rule
-    long long moves;           // Node relinks: one adjacent swap (bubble) or one node placed in the merged output (merge)
-    size_t maxDepth;           // Deepest recursion level reached (0 for the iterative bubble sort)
-    size_t auxBytes;           // Estimated working memory needed beyond the list itself
+    double elapsedMs;          // How long the sort took, in milliseconds
+    long long comparisons;     // How many times two patients were compared
+    long long moves;           // How many nodes were re-coupled
+    size_t maxDepth;           // Deepest level of recursion reached
+    size_t auxBytes;           // Estimated extra memory the algorithm needed beyond the list itself
 
     SortStats() : elapsedMs(0.0), comparisons(0), moves(0), maxDepth(0), auxBytes(0) {}
 };
@@ -63,12 +64,17 @@ public:
     static bool costAscending(const Node* a, const Node* b)  { return a->data.calculateTotalCost() < b->data.calculateTotalCost(); }
     static bool costDescending(const Node* a, const Node* b) { return a->data.calculateTotalCost() > b->data.calculateTotalCost(); }
 
+    // Alphabetical, case-sensitive (std::string comparison). Equal care types keep their original order
+    static bool careTypeAscending(const Node* a, const Node* b)  { return a->data.careType < b->data.careType; }
+    static bool careTypeDescending(const Node* a, const Node* b) { return a->data.careType > b->data.careType; }
+
     // Picks the comparison rule for a field and direction
     static Comparator comparatorFor(SortField field, bool ascending) {
         switch (field) {
         case SortField::Age:           return ascending ? ageAscending : ageDescending;
         case SortField::VisitDuration: return ascending ? stayAscending : stayDescending;
         case SortField::TotalCost:     return ascending ? costAscending : costDescending;
+        case SortField::CareType:      return ascending ? careTypeAscending : careTypeDescending;
         }
         return ageAscending;
     }
@@ -78,6 +84,7 @@ public:
         case SortField::Age:           return "Age";
         case SortField::VisitDuration: return "Visit Duration (Length of Stay)";
         case SortField::TotalCost:     return "Total Medical Cost";
+        case SortField::CareType:      return "Care Type";
         }
         return "Unknown";
     }
@@ -114,7 +121,7 @@ public:
             swapped = false;
             Node* previous = nullptr;
             Node* current = head;
-            while (current->next != lastSorted) {
+            while (current->next != lastSorted) { // Inner loop move the largest one to list[-1]
                 Node* next = current->next;
                 ++stats.comparisons;
                 if (comesBefore(next, current)) {
@@ -122,7 +129,7 @@ public:
                     current->next = next->next;
                     next->next = current;
                     if (previous == nullptr) {
-                        head = next;
+                        head = next; // sorted list's head
                     } else {
                         previous->next = next;
                     }
@@ -139,7 +146,7 @@ public:
         list.relink(head);
 
         stats.elapsedMs = elapsedSince(start);
-        stats.maxDepth = 0;
+        stats.maxDepth = 0; // use loop, no max depth
         stats.auxBytes = BUBBLE_AUX_BYTES;
         return stats;
     }
@@ -170,7 +177,7 @@ public:
      * unsorted and sorted versions can be used side by side (e.g. searching unsorted vs sorted data).
      * The copy costs one extra list of memory (about source.getMemoryUsageBytes()).
      * @param source List to copy and sort
-     * @param field Age, Visit Duration or Total Medical Cost
+     * @param field Age, Visit Duration, Total Medical Cost or Care Type
      * @param ascending true for lowest first, false for highest first
      * @param algorithm Bubble or Merge (merge sort by default, it is much faster)
      */
@@ -211,11 +218,11 @@ private:
         Node* slow = head;
         Node* fast = head->next;
         while (fast != nullptr && fast->next != nullptr) {
-            slow = slow->next;
-            fast = fast->next->next;
+            slow = slow->next; // 1 step
+            fast = fast->next->next; // 2 steps
         }
-        Node* second = slow->next;
-        slow->next = nullptr;
+        Node* second = slow->next; // start of right half
+        slow->next = nullptr; // right half end
 
         Node* left = mergeSortChain(head, comesBefore, stats, depth + 1);
         Node* right = mergeSortChain(second, comesBefore, stats, depth + 1);

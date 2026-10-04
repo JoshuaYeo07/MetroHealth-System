@@ -22,7 +22,7 @@ namespace {
         bool mergeSorted;
         size_t recordCount;
         size_t listBytes;
-        PatientList sorted;     // The merge sort result, used for the sample table
+        PatientList sorted;     // merge sort result, used for the sample table
 
         Comparison() : bubbleSorted(false), mergeSorted(false), recordCount(0), listBytes(0) {}
     };
@@ -127,14 +127,14 @@ namespace {
     }
 
     void printMemoryTable(const Comparison& c) {
-        const int widths[] = { 14, 18, 11, 9, 14, 14 };
+        const int widths[] = { 14, 10, 18, 14, 14 };
         const int width = tableWidth(widths);
-        const std::string header[] = { "Algorithm", "List Footprint (B)", "Extra Nodes", "Max Depth", "Aux Memory (B)", "Peak Total (B)" };
+        const std::string header[] = { "Algorithm", "Max Depth", "Mem Footprint (B)", "Aux Memory (B)", "Peak Total (B)" };
         const std::string bubbleRow[] = {
-            "Bubble Sort", std::to_string(c.listBytes), "0", std::to_string(c.bubble.maxDepth),
+            "Bubble Sort", std::to_string(c.bubble.maxDepth), std::to_string(c.listBytes),
             std::to_string(c.bubble.auxBytes), std::to_string(c.listBytes + c.bubble.auxBytes) };
         const std::string mergeRow[] = {
-            "Merge Sort", std::to_string(c.listBytes), "0", std::to_string(c.merge.maxDepth),
+            "Merge Sort", std::to_string(c.merge.maxDepth), std::to_string(c.listBytes),
             std::to_string(c.merge.auxBytes), std::to_string(c.listBytes + c.merge.auxBytes) };
 
         TablePrinter::printHorizontalLine(width);
@@ -144,17 +144,16 @@ namespace {
         printRow(mergeRow, widths, 1);
         TablePrinter::printHorizontalLine(width);
 
-        std::cout << "  * Both sorts relink the existing nodes, so the list itself takes the same memory and no node is allocated.\n"
-                  << "  * Aux Memory is an estimate of the working variables (bubble) or recursion stack (merge) beyond the list.\n"
-                  << "    Max Depth is the deepest recursion level reached (bubble sort is a loop, so 0).\n";
+        std::cout << "  * Aux Memory is an estimate of the working variables (bubble) or recursion stack (merge) beyond the list.\n"
+                  << "  * Max Depth is the deepest recursion level reached (bubble sort is a loop, so 0).\n";
     }
 
     void printComplexityTable() {
-        const int widths[] = { 14, 20, 12, 12, 20, 7 };
+        const int widths[] = { 14, 20, 12, 12, 20 };
         const int width = tableWidth(widths);
-        const std::string header[] = { "Algorithm", "Best Case", "Average", "Worst Case", "Extra Space", "Stable" };
-        const std::string bubbleRow[] = { "Bubble Sort", "O(n) (no swaps)", "O(n^2)", "O(n^2)", "O(1)", "Yes" };
-        const std::string mergeRow[] = { "Merge Sort", "O(n log n)", "O(n log n)", "O(n log n)", "O(log n) stack", "Yes" };
+        const std::string header[] = { "Algorithm", "Best Case", "Average", "Worst Case", "Extra Space" };
+        const std::string bubbleRow[] = { "Bubble Sort", "O(n) (no swaps)", "O(n^2)", "O(n^2)", "O(1)" };
+        const std::string mergeRow[] = { "Merge Sort", "O(n log n)", "O(n log n)", "O(n log n)", "O(log n) stack" };
 
         TablePrinter::printHorizontalLine(width);
         printRow(header, widths, LEFT_ALIGN_ALL);     // every column left aligned
@@ -166,7 +165,7 @@ namespace {
         std::cout << "  * n = number of patient records. Bubble sort stops early when a sweep makes no swap, which gives its O(n) best case.\n";
     }
 
-} // namespace
+}
 
 void SortingAnalysis::printSortingReport(const PatientList& patients, const std::string& datasetTitle,
                                          SortField field, bool ascending) {
@@ -198,7 +197,7 @@ void SortingAnalysis::printAllFieldsReport(const PatientList& patients, const st
         return;
     }
 
-    const SortField fields[] = { SortField::Age, SortField::VisitDuration, SortField::TotalCost };
+    const SortField fields[] = { SortField::Age, SortField::VisitDuration, SortField::TotalCost, SortField::CareType };
     for (SortField field : fields) {
         TablePrinter::printSectionTitle("Sorted by " + PatientSorter::fieldName(field) + " (" + orderName(ascending) + ")");
         Comparison comparison = compare(patients, field, ascending);
