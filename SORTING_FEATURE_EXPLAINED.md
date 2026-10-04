@@ -13,7 +13,7 @@ The code has **not been compiled** yet (no compiler was available when it was wr
 From the main menu, option `[4] Sorting & Performance Analysis` lets you:
 
 1. Pick a dataset (Facility A, B, C, or all combined).
-2. Pick what to sort by: **Age**, **Visit Duration** (length of stay), **Total Medical Cost**, or all three.
+2. Pick what to sort by: **Age**, **Visit Duration** (length of stay), **Total Medical Cost**, **Care Type**, or all of them.
 3. Pick the order: ascending (lowest first) or descending (highest first).
 
 The program then sorts a **copy** of the chosen patient list with **bubble sort** and again with **merge sort**, and prints text tables comparing them: the sorted records, how long each took, how much work each did, how much memory each needed, and the theoretical time complexity.
@@ -69,7 +69,7 @@ This file is header-only (everything is defined inside the header), like `CareTy
 ### 2.1 `enum class SortField`
 
 ```cpp
-enum class SortField { Age, VisitDuration, TotalCost };
+enum class SortField { Age, VisitDuration, TotalCost, CareType };
 ```
 
 A named choice of what to sort by. Using an enum instead of the numbers 1, 2, 3 makes the code readable: `SortField::Age` says what it means.
@@ -268,7 +268,7 @@ If the dataset is empty it prints a notice and stops.
 
 #### `printAllFieldsReport(patients, datasetTitle, ascending)`
 
-Runs the comparison for all three fields (age, stay, cost). For each field it prints the performance and memory tables, then prints the complexity table once at the end. It skips the sample records to keep the output short.
+Runs the comparison for all four fields (age, stay, cost, care type). For each field it prints the performance and memory tables, then prints the complexity table once at the end. It skips the sample records to keep the output short.
 
 Both take `const PatientList&`, so the original list is never changed. Each algorithm sorts its own copy.
 
@@ -376,9 +376,9 @@ Now shorter: it calls `chooseDataset`, then `printAgeGroupReport`. Behaviour is 
 #### `runSortingMenu(...)` (new)
 
 1. Pick a dataset with `chooseDataset`.
-2. Pick the field: `[1]` Age, `[2]` Visit Duration, `[3]` Total Medical Cost, `[4]` all three, `[0]` back.
+2. Pick the field: `[1]` Age, `[2]` Visit Duration, `[3]` Total Medical Cost, `[4]` Care Type (alphabetical, extra field for Task 7), `[5]` all four fields, `[0]` back.
 3. Pick the order: `[1]` ascending, `[2]` descending.
-4. If `[4]` was chosen, call `printAllFieldsReport`. Otherwise turn the number into a `SortField` and call `printSortingReport`.
+4. If `[5]` was chosen, call `printAllFieldsReport`. Otherwise turn the number into a `SortField` and call `printSortingReport`.
 
 Every prompt uses the existing `readChoice`, which re-asks on bad input and returns -1 if input ends, so the new menu is handled the same way as the old ones.
 
