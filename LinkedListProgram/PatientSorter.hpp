@@ -211,11 +211,11 @@ private:
         Node* slow = head;
         Node* fast = head->next;
         while (fast != nullptr && fast->next != nullptr) {
-            slow = slow->next;
-            fast = fast->next->next;
+            slow = slow->next; // 1 step
+            fast = fast->next->next; // 2 steps
         }
-        Node* second = slow->next;
-        slow->next = nullptr;
+        Node* second = slow->next; // start of right half
+        slow->next = nullptr; // right half end
 
         Node* left = mergeSortChain(head, comesBefore, stats, depth + 1);
         Node* right = mergeSortChain(second, comesBefore, stats, depth + 1);
