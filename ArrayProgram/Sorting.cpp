@@ -2,6 +2,33 @@
 #include <chrono>
 
 namespace {
+    // Auxiliary-memory constants.
+    // Rule: count working pointers, indices, flags, and temporary objects.
+    //       Include return address + saved frame pointer for recursive frames.
+    //       Exclude pass-through parameters (criterion, comparisons, movements),
+    //       instrumentation, and dynamic string storage.
+
+    // bubbleSort workspace: data pointer; n, i, j counters; swapped flag; Patient temp for swap
+    static constexpr size_t BUBBLE_AUX_BYTES =
+        sizeof(Patient*) + 3 * sizeof(size_t) + sizeof(bool) + sizeof(Patient);
+
+    // One mergeSortRecursive frame: arr, temp pointers; left, right, mid + return address + frame pointer
+    static constexpr size_t MERGE_FRAME_BYTES =
+        2 * sizeof(Patient*) + 3 * sizeof(size_t) + 2 * sizeof(void*);
+
+    // merge() helper at deepest level: arr, temp pointers; left, mid, right, i, j, k + return address
+    static constexpr size_t MERGE_STEP_BYTES =
+        2 * sizeof(Patient*) + 6 * sizeof(size_t) + sizeof(void*);
+
+    // Recursion depth for n elements: number of levels in the merge-sort call tree
+    static size_t mergeDepth(size_t n) {
+        size_t depth = 1;
+        for (size_t length = n; length > 1; length = length / 2 + length % 2) {
+            ++depth;
+        }
+        return depth;
+    }
+
     // Helper to evaluate if patient 'a' should follow patient 'b' in ascending order
     inline bool isGreater(const Patient& a, const Patient& b, SortCriterion criterion, uint64_t& comparisons) {
         comparisons++;
@@ -12,6 +39,8 @@ namespace {
                 return a.lengthOfStay > b.lengthOfStay;
             case SortCriterion::TotalCost:
                 return a.calculateTotalCost() > b.calculateTotalCost();
+            case SortCriterion::CareType:
+                return a.careType > b.careType;
         }
         return false;
     }
@@ -67,6 +96,7 @@ std::string SortingEngine::getCriterionName(SortCriterion criterion) {
         case SortCriterion::Age:          return "Patient Age";
         case SortCriterion::LengthOfStay: return "Length of Stay (hrs)";
         case SortCriterion::TotalCost:    return "Total Medical Cost (MYR)";
+        case SortCriterion::CareType:     return "Care Type (A-Z)";
     }
     return "Unknown";
 }
@@ -81,8 +111,8 @@ SortMetrics SortingEngine::bubbleSort(PatientArray& arr, SortCriterion criterion
     m.swapsMovements = 0;
 
     size_t n = arr.size();
-    m.memoryFootprintBytes = arr.getCapacity() * sizeof(Patient); // Allocated patient buffer, including unused slots
-    m.memoryUsageBytes = 0;                       // Strictly in-place, 0 extra heap bytes
+    m.memoryFootprintBytes = arr.getMemoryUsageBytes(); // Container object plus allocated patient slots
+    m.auxiliaryMemoryBytes = 0; // Early return uses no sorting workspace in the model.
 
     if (n <= 1) {
         m.executionTimeMicrosec = 0;
@@ -113,6 +143,8 @@ SortMetrics SortingEngine::bubbleSort(PatientArray& arr, SortCriterion criterion
     auto end = std::chrono::high_resolution_clock::now();
     m.executionTimeMicrosec = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
+    m.auxiliaryMemoryBytes = BUBBLE_AUX_BYTES;
+
     return m;
 }
 
@@ -126,13 +158,16 @@ SortMetrics SortingEngine::mergeSort(PatientArray& arr, SortCriterion criterion)
     m.swapsMovements = 0;
 
     size_t n = arr.size();
-    m.memoryFootprintBytes = arr.getCapacity() * sizeof(Patient); // Allocated patient buffer, including unused slots
-    m.memoryUsageBytes = n * sizeof(Patient);     // Temporary scratchpad heap buffer
+    m.memoryFootprintBytes = arr.getMemoryUsageBytes(); // Container object plus allocated patient slots
 
     if (n <= 1) {
+        m.auxiliaryMemoryBytes = 0;
         m.executionTimeMicrosec = 0;
         return m;
     }
+
+    size_t depth = mergeDepth(n);
+    m.auxiliaryMemoryBytes = n * sizeof(Patient) + depth * MERGE_FRAME_BYTES + MERGE_STEP_BYTES;
 
     Patient* data = arr.rawData();
 

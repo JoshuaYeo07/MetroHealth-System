@@ -88,26 +88,29 @@ static void handleTask4SubMenu(const AnalysisResult &resOverall,
     }
 }
 
-// Helper to benchmark Bubble Sort vs Merge Sort across all 3 criteria on a dataset
+// Helper to benchmark Bubble Sort vs Merge Sort across all 4 criteria on a dataset
 static void runFacilitySortingBenchmark(const PatientArray &dataset, const std::string &facilityName) {
-    BenchmarkPair pairs[3];
+    BenchmarkPair pairs[4];
     PatientArray sortedByAge;
     PatientArray sortedByStay;
     PatientArray sortedByCost;
+    PatientArray sortedByCareType;
 
     std::cout << "\nExecuting Sorting Benchmarks on " << facilityName << "...\n";
 
     pairs[0] = SortingEngine::runComparison(dataset, SortCriterion::Age, &sortedByAge);
     pairs[1] = SortingEngine::runComparison(dataset, SortCriterion::LengthOfStay, &sortedByStay);
     pairs[2] = SortingEngine::runComparison(dataset, SortCriterion::TotalCost, &sortedByCost);
+    pairs[3] = SortingEngine::runComparison(dataset, SortCriterion::CareType, &sortedByCareType);
 
     // 1. Comparison table
-    SortingPrinter::printBenchmarkReport(pairs, 3, facilityName, dataset.size());
+    SortingPrinter::printBenchmarkReport(pairs, 4, facilityName, dataset.size());
 
     // 2. Previews confirming sorted order
-    SortingPrinter::printSortedPreview(sortedByAge, facilityName, SortCriterion::Age, 5);
-    SortingPrinter::printSortedPreview(sortedByStay, facilityName, SortCriterion::LengthOfStay, 5);
-    SortingPrinter::printSortedPreview(sortedByCost, facilityName, SortCriterion::TotalCost, 5);
+    SortingPrinter::printSortedPreview(sortedByAge, "MetroHealth System", SortCriterion::Age, 5);
+    SortingPrinter::printSortedPreview(sortedByStay, "MetroHealth System", SortCriterion::LengthOfStay, 5);
+    SortingPrinter::printSortedPreview(sortedByCost, "MetroHealth System", SortCriterion::TotalCost, 5);
+    SortingPrinter::printSortedPreview(sortedByCareType, "MetroHealth System", SortCriterion::CareType, 5);
 
     // 3. Technical observations and complexity analysis
     SortingPrinter::printAlgorithmicObservations();
@@ -361,7 +364,7 @@ int main() {
             pauseForUser();
         } else if (input == "4") {
             // Task 6: Sorting Experiments (All Facilities Combined - 600 Records)
-            runFacilitySortingBenchmark(allPatients, "MetroHealth System (All Facilities Combined)");
+            runFacilitySortingBenchmark(allPatients, "All Facilities Combined");
             pauseForUser();
         } else if (input == "5") {
             // Task 7: Searching Experiments (Sub-Menu)
