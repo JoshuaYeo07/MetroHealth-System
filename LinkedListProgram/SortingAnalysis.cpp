@@ -197,7 +197,7 @@ void SortingAnalysis::printAllFieldsReport(const PatientList& patients, const st
         return;
     }
 
-    const SortField fields[] = { SortField::Age, SortField::VisitDuration, SortField::TotalCost };
+    const SortField fields[] = { SortField::Age, SortField::VisitDuration, SortField::TotalCost, SortField::CareType };
     for (SortField field : fields) {
         TablePrinter::printSectionTitle("Sorted by " + PatientSorter::fieldName(field) + " (" + orderName(ascending) + ")");
         Comparison comparison = compare(patients, field, ascending);
