@@ -18,7 +18,7 @@ public:
      * overhead table and the complexity table.
      * @param patients Dataset to search (left unchanged; the searches run on the experiment's own copies)
      * @param datasetTitle Heading shown on the report
-     * @param criteria What to search for (age group, care type or visit duration threshold)
+     * @param criteria What to search for (age group, care type, visit duration or total cost threshold)
      * @param sortedAscending Order of the sorted copy: true for lowest first, false for highest first
      */
     static void printSearchReport(const PatientList& patients, const std::string& datasetTitle,

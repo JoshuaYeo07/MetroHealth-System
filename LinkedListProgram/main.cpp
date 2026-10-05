@@ -184,13 +184,16 @@ static void runSortingMenu(const Facility* facilities, const PatientList& allPat
 // Longest visit duration threshold the search menu accepts, in hours
 static const int MAX_STAY_THRESHOLD_HOURS = 1000;
 
+// Highest total medical cost threshold the search menu accepts, in MYR
+static const int MAX_COST_THRESHOLD_MYR = 1000000;
+
 // Asks how the sorted copy used by a search should be ordered. The order decides whether the matching
 // records end up near the head or near the tail, and so how early the search on sorted data can stop.
 // Returns 1 for ascending, 2 for descending, or -1 when input ends.
 static int chooseSortedOrder() {
     std::cout << "\n  Order of the sorted data:\n";
-    std::cout << "    [1] Ascending (youngest, A-Z or shortest visit first)\n";
-    std::cout << "    [2] Descending (oldest, Z-A or longest visit first)\n";
+    std::cout << "    [1] Ascending (youngest, A-Z, shortest visit or lowest cost first)\n";
+    std::cout << "    [2] Descending (oldest, Z-A, longest visit or highest cost first)\n";
     return readChoice(1, 2);
 }
 
@@ -207,8 +210,9 @@ static void runSearchingMenu(const Facility* facilities, const PatientList& allP
     std::cout << "    [1] Age Group\n";
     std::cout << "    [2] Care Type\n";
     std::cout << "    [3] Visit Duration Threshold (visits longer than a number of hours)\n";
+    std::cout << "    [4] Total Medical Cost Threshold (total cost above an amount in MYR)\n";
     std::cout << "    " << RED << "[0] Back to main menu" << COLOR_RESET << "\n";
-    int searchChoice = readChoice(0, 3);
+    int searchChoice = readChoice(0, 4);
     if (searchChoice <= 0) {
         return;
     }
@@ -246,13 +250,20 @@ static void runSearchingMenu(const Facility* facilities, const PatientList& allP
             selected = selected->next;
         }
         criteria = SearchCriteria::forCareType(selected->careType);
-    } else {
+    } else if (searchChoice == 3) {
         std::cout << "\n";
         int hours = readChoice(0, MAX_STAY_THRESHOLD_HOURS, "  Find visits longer than how many hours?");
         if (hours < 0) {
             return;
         }
         criteria = SearchCriteria::forStayLongerThan(hours);
+    } else {
+        std::cout << "\n";
+        int amount = readChoice(0, MAX_COST_THRESHOLD_MYR, "  Find total medical costs above how many MYR?");
+        if (amount < 0) {
+            return;
+        }
+        criteria = SearchCriteria::forCostAbove(amount);
     }
 
     int orderChoice = chooseSortedOrder();

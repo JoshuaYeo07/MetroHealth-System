@@ -13,7 +13,8 @@
 enum class SearchField {
     Age,             // Age group, e.g. 61-100
     CareType,        // One specific care type, e.g. Emergency
-    VisitDuration    // Length of Stay above a threshold, e.g. > 24 hours
+    VisitDuration,   // Length of Stay above a threshold, e.g. > 24 hours
+    TotalCost        // Total medical cost above a threshold, e.g. > MYR 10000
 };
 
 /**
@@ -36,7 +37,8 @@ enum class SearchAlgorithm {
 
 /**
  * @struct SearchCriteria
- * @brief What one search is looking for: an age group, one care type, or visits longer than a threshold.
+ * @brief What one search is looking for: an age group, one care type, visits longer than a
+ * threshold, or a total medical cost above a threshold.
  */
 struct SearchCriteria {
     SearchField field;
@@ -44,9 +46,10 @@ struct SearchCriteria {
     int maxAge;             // Age: oldest matching age
     std::string careType;   // CareType: the care type to match
     int thresholdHours;     // VisitDuration: visits longer than this match
+    int thresholdCost;      // TotalCost: total medical costs above this amount (MYR) match
     std::string label;      // Shown on report headings, e.g. "Visit Duration > 24 hours"
 
-    SearchCriteria() : field(SearchField::Age), minAge(0), maxAge(0), thresholdHours(0) {}
+    SearchCriteria() : field(SearchField::Age), minAge(0), maxAge(0), thresholdHours(0), thresholdCost(0) {}
 
     // Every patient whose age falls in the group, e.g. 61-100
     static SearchCriteria forAgeGroup(AgeGroup group) {
@@ -76,24 +79,49 @@ struct SearchCriteria {
         return criteria;
     }
 
+    // Every patient whose total medical cost is above the threshold, e.g. > MYR 10000
+    // (cost = Length of Stay x Base Cost Per Hour x Days Visits Per Year)
+    static SearchCriteria forCostAbove(int amount) {
+        SearchCriteria criteria;
+        criteria.field = SearchField::TotalCost;
+        criteria.thresholdCost = amount;
+        criteria.label = "Total Medical Cost > MYR " + std::to_string(amount);
+        return criteria;
+    }
+
     // True when the patient is one of the records this search is looking for
     bool matches(const Patient& patient) const {
         switch (field) {
         case SearchField::Age:           return patient.age >= minAge && patient.age <= maxAge;
         case SearchField::CareType:      return patient.careType == careType;
         case SearchField::VisitDuration: return patient.lengthOfStay > thresholdHours;
+        case SearchField::TotalCost:     return patient.calculateTotalCost() > thresholdCost;
         }
         return false;
     }
 
-    // A made-up record that is guaranteed to match, whichever field is searched.
+    // A made-up record that is guaranteed to match this criteria.
     // Sentinel linear search places it after the last real record.
     Patient sentinelRecord() const {
         Patient sentinel;
         sentinel.patientId = "SENTINEL";
-        sentinel.age = minAge;
-        sentinel.careType = careType;
-        sentinel.lengthOfStay = thresholdHours + 1;
+        switch (field) {
+        case SearchField::Age:
+            sentinel.age = minAge;
+            break;
+        case SearchField::CareType:
+            sentinel.careType = careType;
+            break;
+        case SearchField::VisitDuration:
+            sentinel.lengthOfStay = thresholdHours + 1;
+            break;
+        case SearchField::TotalCost:
+            // 1 hour x (threshold + 1) MYR per hour x 1 visit = a cost just above the threshold
+            sentinel.lengthOfStay = 1;
+            sentinel.baseCostPerHour = thresholdCost + 1.0;
+            sentinel.daysVisitsPerYear = 1;
+            break;
+        }
         return sentinel;
     }
 };
@@ -136,6 +164,7 @@ public:
         case SearchField::Age:           return SortField::Age;
         case SearchField::VisitDuration: return SortField::VisitDuration;
         case SearchField::CareType:      return SortField::CareType;
+        case SearchField::TotalCost:     return SortField::TotalCost;
         }
         return SortField::Age;
     }
@@ -145,6 +174,7 @@ public:
         case SearchField::Age:           return ascending ? "Age (youngest first)" : "Age (oldest first)";
         case SearchField::VisitDuration: return ascending ? "Visit Duration (shortest first)" : "Visit Duration (longest first)";
         case SearchField::CareType:      return ascending ? "Care Type (A-Z)" : "Care Type (Z-A)";
+        case SearchField::TotalCost:     return ascending ? "Total Medical Cost (lowest first)" : "Total Medical Cost (highest first)";
         }
         return "Unknown";
     }
