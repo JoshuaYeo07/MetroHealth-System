@@ -115,6 +115,7 @@
     <ClCompile Include="HealthcareAnalytics.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PatientList.cpp" />
+    <ClCompile Include="SearchingAnalysis.cpp" />
     <ClCompile Include="SortingAnalysis.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -124,7 +125,9 @@
     <ClInclude Include="HealthcareAnalytics.hpp" />
     <ClInclude Include="Patient.hpp" />
     <ClInclude Include="PatientList.hpp" />
+    <ClInclude Include="PatientSearcher.hpp" />
     <ClInclude Include="PatientSorter.hpp" />
+    <ClInclude Include="SearchingAnalysis.hpp" />
     <ClInclude Include="SortingAnalysis.hpp" />
     <ClInclude Include="TablePrinter.hpp" />
   </ItemGroup>

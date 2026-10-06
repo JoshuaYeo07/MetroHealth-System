@@ -34,6 +34,34 @@ inline std::string ageGroupRange(AgeGroup group) {
 }
 
 /**
+ * @brief Youngest age (inclusive) covered by an age group, e.g. 18 for the 18-25 group.
+ */
+inline int ageGroupMinAge(AgeGroup group) {
+    switch (group) {
+        case AgeGroup::PediatricsAndAdolescents: return 0;
+        case AgeGroup::YoungAdultsStudents:      return 18;
+        case AgeGroup::WorkingAdultsEarlyCareer: return 26;
+        case AgeGroup::WorkingAdultsLateCareer:  return 46;
+        case AgeGroup::SeniorCitizensGeriatric:  return 61;
+        default:                                 return -1;
+    }
+}
+
+/**
+ * @brief Oldest age (inclusive) covered by an age group, e.g. 25 for the 18-25 group.
+ */
+inline int ageGroupMaxAge(AgeGroup group) {
+    switch (group) {
+        case AgeGroup::PediatricsAndAdolescents: return 17;
+        case AgeGroup::YoungAdultsStudents:      return 25;
+        case AgeGroup::WorkingAdultsEarlyCareer: return 45;
+        case AgeGroup::WorkingAdultsLateCareer:  return 60;
+        case AgeGroup::SeniorCitizensGeriatric:  return 100;
+        default:                                 return -1;
+    }
+}
+
+/**
  * @brief Descriptive label of an age group, e.g. "Young Adults / University Students".
  */
 inline std::string ageGroupDescription(AgeGroup group) {
