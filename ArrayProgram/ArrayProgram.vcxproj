@@ -141,6 +141,8 @@
     <ClCompile Include="AnalysisPrinter.cpp" />
     <ClCompile Include="Sorting.cpp" />
     <ClCompile Include="SortingPrinter.cpp" />
+    <ClCompile Include="Searching.cpp" />
+    <ClCompile Include="SearchingPrinter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Patient.hpp" />
@@ -151,6 +153,8 @@
     <ClInclude Include="AnalysisPrinter.hpp" />
     <ClInclude Include="Sorting.hpp" />
     <ClInclude Include="SortingPrinter.hpp" />
+    <ClInclude Include="Searching.hpp" />
+    <ClInclude Include="SearchingPrinter.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

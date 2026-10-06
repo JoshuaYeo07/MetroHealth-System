@@ -13,7 +13,8 @@
 enum class SortCriterion {
     Age,            // Sort by patient age (ascending)
     LengthOfStay,   // Sort by visit duration in hours (ascending)
-    TotalCost       // Sort by total medical billing in MYR (ascending)
+    TotalCost,      // Sort by total medical billing in MYR (ascending)
+    CareType        // Sort by care type alphabetically (A-Z)
 };
 
 /**
@@ -28,8 +29,13 @@ struct SortMetrics {
     long long executionTimeMicrosec;  // Measured execution time in microseconds (std::chrono)
     uint64_t comparisons;             // Total element-to-element comparisons performed
     uint64_t swapsMovements;          // Total swaps (Bubble Sort) or buffer movements (Merge Sort)
-    size_t memoryFootprintBytes;      // Estimated allocated patient buffer: capacity * sizeof(Patient)
-    size_t memoryUsageBytes;          // Extra temporary memory allocated during sorting (0 B vs O(n) scratchpad)
+    size_t memoryFootprintBytes;      // Container object plus capacity * sizeof(Patient)
+    size_t auxiliaryMemoryBytes;      // Estimated peak source-level workspace; see model in Sorting.cpp
+
+    // Estimated memory within the reported scope = Mem Footprint + Auxiliary Memory
+    size_t getPeakMemoryBytes() const {
+        return memoryFootprintBytes + auxiliaryMemoryBytes;
+    }
 };
 
 /**

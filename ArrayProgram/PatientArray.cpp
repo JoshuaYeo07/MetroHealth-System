@@ -133,6 +133,13 @@ void PatientArray::clear() {
     count = 0;
 }
 
+// Grows the buffer to at least newCapacity slots (never shrinks)
+void PatientArray::reserve(size_t newCapacity) {
+    if (newCapacity > capacity) {
+        reallocate(newCapacity);
+    }
+}
+
 // Size and capacity queries
 size_t PatientArray::size() const {
     return count;

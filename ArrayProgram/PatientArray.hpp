@@ -50,6 +50,7 @@ public:
     void push_back(const Patient& patient);
     void removeAt(size_t index);
     void clear();
+    void reserve(size_t newCapacity);
 
     // Capacity & Status
     size_t size() const;
