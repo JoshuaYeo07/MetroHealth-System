@@ -24,6 +24,9 @@
     <ClCompile Include="PatientList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SearchingAnalysis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="SortingAnalysis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -47,7 +50,13 @@
     <ClInclude Include="PatientList.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PatientSearcher.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="PatientSorter.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SearchingAnalysis.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SortingAnalysis.hpp">

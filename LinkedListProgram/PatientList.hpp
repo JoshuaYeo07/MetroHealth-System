@@ -78,6 +78,11 @@ public:
     void removeAt(size_t index);
     void clear();
 
+    // Sentinel support (used by sentinel linear search): links a temporary extra node after the
+    // tail and unlinks it again, both in O(1). The sentinel is never counted in size().
+    Node* attachSentinel(const Patient& sentinelRecord);
+    void detachSentinel(Node* sentinel);
+
     // Re-attaches the list to a re-ordered chain of its own nodes
     void relink(Node* newHead);
 

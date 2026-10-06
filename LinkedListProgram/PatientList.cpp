@@ -146,6 +146,28 @@ void PatientList::clear() {
     count = 0;
 }
 
+// Links a temporary sentinel node after the last node and returns it. The tail pointer and the
+// count are left alone, so tail still marks the last real node and detachSentinel can undo this in O(1).
+PatientList::Node* PatientList::attachSentinel(const Patient& sentinelRecord) {
+    Node* sentinel = new Node(sentinelRecord);
+    if (tail == nullptr) {
+        head = sentinel;
+    } else {
+        tail->next = sentinel;
+    }
+    return sentinel;
+}
+
+// Unlinks and frees the node added by attachSentinel, leaving the list exactly as it was before
+void PatientList::detachSentinel(Node* sentinel) {
+    if (tail == nullptr) {
+        head = nullptr;
+    } else {
+        tail->next = nullptr;
+    }
+    delete sentinel;
+}
+
 // Adopts a re-ordered chain of this list's nodes and recomputes tail and count
 void PatientList::relink(Node* newHead) {
     head = newHead;
