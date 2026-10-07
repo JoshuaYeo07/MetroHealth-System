@@ -3,6 +3,14 @@
 #include <stdexcept>
 
 namespace {
+    // Auxiliary-memory constants, using the same rule as Sorting.cpp:
+    // count working pointers, indices, flags, and temporary objects.
+    // Exclude pass-through parameters (query, comparison counters), instrumentation
+    // (the timing loop), and dynamic string storage.
+
+    // Scan workspace: data and result-buffer pointers; n, i, found counters
+    constexpr size_t SCAN_VARIABLE_BYTES = sizeof(Patient*) + sizeof(size_t*) + 3 * sizeof(size_t);
+
     // Age group boundaries in the same order as AGE_GROUP_NAMES (Task 4a)
     const int AGE_GROUP_MIN[NUM_AGE_GROUPS] = {0, 18, 26, 46, 61};
     const int AGE_GROUP_MAX[NUM_AGE_GROUPS] = {17, 25, 45, 60, 100};
@@ -135,6 +143,14 @@ SearchQuery SearchQuery::byStayAbove(int hours) {
     return q;
 }
 
+SearchQuery SearchQuery::byCostAbove(int myr) {
+    SearchQuery q;
+    q.field = SearchField::CostAbove;
+    q.costThreshold = myr;
+    q.label = "Total Cost > " + std::to_string(myr) + " MYR";
+    return q;
+}
+
 bool SearchQuery::matches(const Patient& p) const {
     switch (field) {
         case SearchField::AgeRange:
@@ -145,6 +161,8 @@ bool SearchQuery::matches(const Patient& p) const {
         }
         case SearchField::StayAbove:
             return p.lengthOfStay > stayThreshold;
+        case SearchField::CostAbove:
+            return p.calculateTotalCost() > costThreshold;
     }
     return false;
 }
@@ -154,6 +172,8 @@ Patient SearchQuery::makeSentinel() const {
     sentinel.patientId = "SENTINEL";
     sentinel.age = minAge;                      // Satisfies AgeRange
     sentinel.lengthOfStay = stayThreshold + 1;  // Satisfies StayAbove
+    sentinel.baseCostPerHour = costThreshold + 1.0;
+    sentinel.daysVisitsPerYear = 1;             // Satisfies CostAbove: cost >= 1 hr x (threshold + 1) x 1
     for (int c = 0; c < NUM_CARE_TYPES; ++c) {  // Satisfies CareType
         if (careTypes[c]) {
             sentinel.careType = CARE_TYPE_NAMES[c];
@@ -166,19 +186,24 @@ Patient SearchQuery::makeSentinel() const {
 SearchMetrics SearchEngine::linearSearch(const PatientArray& arr, const SearchQuery& query,
                                          const std::string& dataOrder, PatientArray* outMatches) {
     SearchMetrics m;
+    m.dataStructure = "Dynamic Array";
     m.algorithmName = "Linear Search";
     m.dataOrder = dataOrder;
-    m.memoryFootprintBytes = arr.getCapacity() * sizeof(Patient);
+    m.timeComplexity = "O(n)";
+    m.memoryFootprintBytes = arr.getMemoryUsageBytes(); // Container object plus allocated patient slots
 
     const Patient* data = arr.rawData();
     size_t n = arr.size();
-    size_t* indices = new size_t[n > 0 ? n : 1]; // Worst case: every record matches
+    size_t bufferSlots = n > 0 ? n : 1;
+    size_t* indices = new size_t[bufferSlots]; // Worst case: every record matches
+
+    // Workspace: scan variables + result index buffer
+    m.auxiliaryMemoryBytes = SCAN_VARIABLE_BYTES + bufferSlots * sizeof(size_t);
 
     measure([&](uint64_t& keys, uint64_t& bounds) {
         return linearScan(data, n, query, indices, keys, bounds);
     }, m);
 
-    m.extraMemoryBytes = m.matches * sizeof(size_t);
     copyMatches(arr, indices, m.matches, outMatches);
     delete[] indices;
     return m;
@@ -187,9 +212,11 @@ SearchMetrics SearchEngine::linearSearch(const PatientArray& arr, const SearchQu
 SearchMetrics SearchEngine::sentinelLinearSearch(PatientArray& arr, const SearchQuery& query,
                                                  const std::string& dataOrder, PatientArray* outMatches) {
     SearchMetrics m;
+    m.dataStructure = "Dynamic Array";
     m.algorithmName = "Sentinel Linear Search";
     m.dataOrder = dataOrder;
-    m.memoryFootprintBytes = arr.getCapacity() * sizeof(Patient);
+    m.timeComplexity = "O(n)";
+    m.memoryFootprintBytes = arr.getMemoryUsageBytes(); // Container object plus allocated patient slots
 
     const Patient sentinel = query.makeSentinel();
     if (!query.matches(sentinel)) {
@@ -208,7 +235,13 @@ SearchMetrics SearchEngine::sentinelLinearSearch(PatientArray& arr, const Search
     }
 
     Patient* data = arr.rawData();
-    size_t* indices = new size_t[n > 0 ? n : 1];
+    size_t bufferSlots = n > 0 ? n : 1;
+    size_t* indices = new size_t[bufferSlots];
+
+    // Workspace: scan variables + result index buffer + the temporary sentinel record.
+    // The sentinel's slot lies in spare capacity that Mem Footprint already counts;
+    // if the array was full, the capacity it had to add is counted instead.
+    m.auxiliaryMemoryBytes = SCAN_VARIABLE_BYTES + bufferSlots * sizeof(size_t) + sizeof(Patient) + growthBytes;
 
     measure([&](uint64_t& keys, uint64_t& bounds) {
         // Placed on every search so its cost is part of the timing. Slot n lies beyond size(),
@@ -217,7 +250,6 @@ SearchMetrics SearchEngine::sentinelLinearSearch(PatientArray& arr, const Search
         return sentinelScan(data, n, query, indices, keys, bounds);
     }, m);
 
-    m.extraMemoryBytes = (m.arrayGrew ? growthBytes : sizeof(Patient)) + m.matches * sizeof(size_t);
     copyMatches(arr, indices, m.matches, outMatches);
     delete[] indices;
     return m;

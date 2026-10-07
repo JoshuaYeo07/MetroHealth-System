@@ -144,25 +144,54 @@ static bool parseNonNegativeInt(const std::string &text, int &value) {
     return true;
 }
 
+// Sorted copies of all patients for Task 7, one per searchable field
+struct SortedCopies {
+    PatientArray byAge;
+    PatientArray byStay;
+    PatientArray byCost;
+    PatientArray byCareType;
+};
+
+// Returns a copy of the source array sorted by the given criterion (Merge Sort)
+static PatientArray makeSortedCopy(const PatientArray &source, SortCriterion criterion) {
+    PatientArray copy = source;
+    SortingEngine::mergeSort(copy, criterion);
+    return copy;
+}
+
 // Runs Linear vs Sentinel Linear Search on unsorted and sorted data, then prints the report,
 // the matching records and the performance analysis
-static void runSearchExperiment(const SearchQuery &query, PatientArray &unsorted,
-                                PatientArray &sortedByAge, PatientArray &sortedByStay) {
-    // Stay queries use the array sorted by visit duration; age and care type queries use the age-sorted array
-    bool useStaySort = (query.field == SearchField::StayAbove);
-    PatientArray &sorted = useStaySort ? sortedByStay : sortedByAge;
-    std::string sortedLabel = useStaySort ? "Sorted (Stay)" : "Sorted (Age)";
+static void runSearchExperiment(const SearchQuery &query, PatientArray &unsorted, SortedCopies &sortedCopies) {
+    // The sorted run always uses the copy ordered by the same field the query searches
+    PatientArray *sorted = &sortedCopies.byAge;
+    std::string sortedLabel = "Sorted (Age)";
+    switch (query.field) {
+        case SearchField::AgeRange:
+            break;
+        case SearchField::CareType:
+            sorted = &sortedCopies.byCareType;
+            sortedLabel = "Sorted (Care Type)";
+            break;
+        case SearchField::StayAbove:
+            sorted = &sortedCopies.byStay;
+            sortedLabel = "Sorted (Stay)";
+            break;
+        case SearchField::CostAbove:
+            sorted = &sortedCopies.byCost;
+            sortedLabel = "Sorted (Cost)";
+            break;
+    }
 
     PatientArray matches;
-    SearchComparison result = SearchEngine::runComparison(unsorted, sorted, sortedLabel, query, &matches);
+    SearchComparison result = SearchEngine::runComparison(unsorted, *sorted, sortedLabel, query, &matches);
 
-    SearchingPrinter::printComparisonReport(result, "MetroHealth System (All Facilities Combined)", unsorted.size());
-    SearchingPrinter::printMatches(matches, query);
+    SearchingPrinter::printComparisonReport(result, "All Facilities Combined", unsorted.size());
+    SearchingPrinter::printMatches(matches, query, sortedLabel);
     SearchingPrinter::printObservations(result, unsorted.size());
 }
 
 // Sub-Menu for Task 7: Searching Experiments
-static void handleTask7SubMenu(PatientArray &allPatients, PatientArray &sortedByAge, PatientArray &sortedByStay) {
+static void handleTask7SubMenu(PatientArray &allPatients, SortedCopies &sortedCopies) {
     while (true) {
         std::cout << "\n====================================================================================\n";
         std::cout << "  " << Color::BOLD_GREEN << "SEARCHING EXPERIMENTS - LINEAR vs SENTINEL LINEAR SEARCH (TASK 7)" << Color::RESET << "\n";
@@ -170,6 +199,7 @@ static void handleTask7SubMenu(PatientArray &allPatients, PatientArray &sortedBy
         std::cout << "  " << Color::BOLD_GREEN << "[ 1 ]" << Color::RESET << ": Search by Age Group\n";
         std::cout << "  " << Color::BOLD_GREEN << "[ 2 ]" << Color::RESET << ": Search by Care Type\n";
         std::cout << "  " << Color::BOLD_GREEN << "[ 3 ]" << Color::RESET << ": Search by Visit Duration Threshold\n";
+        std::cout << "  " << Color::BOLD_GREEN << "[ 4 ]" << Color::RESET << ": Search by Total Medical Cost Threshold\n";
         std::cout << "  " << Color::BOLD_GREEN << "[ 0 ]" << Color::RESET << ": Return to Main Menu\n";
         std::cout << "====================================================================================\n";
         std::cout << "Enter your choice: ";
@@ -195,7 +225,7 @@ static void handleTask7SubMenu(PatientArray &allPatients, PatientArray &sortedBy
                 break;
             }
             if (input.size() == 1 && input[0] >= '1' && input[0] < '1' + NUM_AGE_GROUPS) {
-                runSearchExperiment(SearchQuery::byAgeGroup(input[0] - '1'), allPatients, sortedByAge, sortedByStay);
+                runSearchExperiment(SearchQuery::byAgeGroup(input[0] - '1'), allPatients, sortedCopies);
             } else {
                 std::cout << "\n[Error] Invalid age group '" << input << "'.\n";
             }
@@ -225,7 +255,7 @@ static void handleTask7SubMenu(PatientArray &allPatients, PatientArray &sortedBy
             }
 
             if (valid && anySelected) {
-                runSearchExperiment(SearchQuery::byCareTypes(selected), allPatients, sortedByAge, sortedByStay);
+                runSearchExperiment(SearchQuery::byCareTypes(selected), allPatients, sortedCopies);
             } else {
                 std::cout << "\n[Error] Invalid care type selection '" << input << "'.\n";
             }
@@ -239,15 +269,30 @@ static void handleTask7SubMenu(PatientArray &allPatients, PatientArray &sortedBy
             }
             int hours = 24;
             if (input.empty() || parseNonNegativeInt(input, hours)) {
-                runSearchExperiment(SearchQuery::byStayAbove(hours), allPatients, sortedByAge, sortedByStay);
+                runSearchExperiment(SearchQuery::byStayAbove(hours), allPatients, sortedCopies);
             } else {
                 std::cout << "\n[Error] Invalid number of hours '" << input << "'.\n";
+            }
+            pauseForUser("Press Enter to return to Sub-Menu...");
+        } else if (choice == "4") {
+            std::cout << "\nTotal medical cost = Length of Stay x Base Cost Per Hour x Days Visits Per Year\n";
+            std::cout << "Find patients whose total medical cost is MORE than how many MYR? (press Enter for 10000): ";
+
+            std::string input;
+            if (!readTrimmedLine(input)) {
+                break;
+            }
+            int myr = 10000;
+            if (input.empty() || parseNonNegativeInt(input, myr)) {
+                runSearchExperiment(SearchQuery::byCostAbove(myr), allPatients, sortedCopies);
+            } else {
+                std::cout << "\n[Error] Invalid amount '" << input << "'. Please enter a whole number of MYR.\n";
             }
             pauseForUser("Press Enter to return to Sub-Menu...");
         } else if (choice == "0") {
             break;
         } else {
-            std::cout << "\n[Error] Invalid choice '" << choice << "'. Please enter a number between 0 and 3.\n";
+            std::cout << "\n[Error] Invalid choice '" << choice << "'. Please enter a number between 0 and 4.\n";
             pauseForUser("Press Enter to continue...");
         }
     }
@@ -286,10 +331,12 @@ int main() {
     AnalysisResult resOverall = combine(combine(resA, resB), resC);
 
     // 4. Pre-sorted copies for Task 7, so every search runs on both unsorted and sorted data
-    PatientArray sortedByAge = allPatients;
-    PatientArray sortedByStay = allPatients;
-    SortingEngine::mergeSort(sortedByAge, SortCriterion::Age);
-    SortingEngine::mergeSort(sortedByStay, SortCriterion::LengthOfStay);
+    SortedCopies sortedCopies = {
+        makeSortedCopy(allPatients, SortCriterion::Age),
+        makeSortedCopy(allPatients, SortCriterion::LengthOfStay),
+        makeSortedCopy(allPatients, SortCriterion::TotalCost),
+        makeSortedCopy(allPatients, SortCriterion::CareType)
+    };
 
     // 5. Interactive Menu Loop
     while (true) {
@@ -368,7 +415,7 @@ int main() {
             pauseForUser();
         } else if (input == "5") {
             // Task 7: Searching Experiments (Sub-Menu)
-            handleTask7SubMenu(allPatients, sortedByAge, sortedByStay);
+            handleTask7SubMenu(allPatients, sortedCopies);
         } else if (input == "0") {
             std::cout << "\nExiting MetroHealth System. Thank you!\n";
             break;

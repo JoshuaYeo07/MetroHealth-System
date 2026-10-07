@@ -21,9 +21,11 @@ public:
 
     /**
      * @brief Displays the records returned by a search.
+     * @param sortedLabel The sorted copy the records were taken from, e.g. "Sorted (Care Type)"
      * @param maxRows Maximum rows to display (0 for all rows)
      */
-    static void printMatches(const PatientArray& matches, const SearchQuery& query, size_t maxRows = 10);
+    static void printMatches(const PatientArray& matches, const SearchQuery& query,
+                             const std::string& sortedLabel, size_t maxRows = 10);
 
     /**
      * @brief Prints the performance analysis, calculated from the measured results.
