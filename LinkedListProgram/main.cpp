@@ -17,10 +17,28 @@
 #include <windows.h>
 #endif
 
-// ANSI colours: light green for the logo, red for the exit/back menu options; reset back to the default console colour afterwards
-static const char* const LIGHT_GREEN = "\033[92m";
+// ANSI colours; COLOR_RESET switches back to the default console colour
 static const char* const RED = "\033[91m";
+static const char* const LIGHT_GREEN = "\033[92m";
+static const char* const YELLOW = "\033[93m";
+static const char* const BLUE = "\033[94m";
+static const char* const MAGENTA = "\033[95m";
+static const char* const CYAN = "\033[96m";
 static const char* const COLOR_RESET = "\033[0m";
+
+// Menu colour scheme. Each kind of choice has one colour, used in every menu that offers that kind
+// of choice, so the same question looks the same whether it is asked while sorting or while searching.
+static const char* const MAIN_MENU_COLOR = CYAN;        // The reports on the main menu
+static const char* const DATASET_COLOR = YELLOW;        // Which dataset to use
+static const char* const FIELD_COLOR = MAGENTA;         // What to sort or search by (age, care type, ...)
+static const char* const VALUE_COLOR = LIGHT_GREEN;     // Which value to search for (an age group, a care type)
+static const char* const ORDER_COLOR = BLUE;            // Ascending or descending
+static const char* const BACK_COLOR = RED;              // Exit or go back
+
+// Prints one indented menu option in the colour of its kind, e.g. "    [1] Age"
+static void printOption(const char* color, const std::string& text, const std::string& indent = "    ") {
+    std::cout << indent << color << text << COLOR_RESET << "\n";
+}
 
 // "MetroHealth" logo, generated with pyfiglet's "standard" font and stored as plain ASCII
 static void printLogo() {
@@ -105,11 +123,11 @@ static const PatientList* chooseDataset(const Facility* facilities, const Patien
     std::cout << "\n  " << heading << "\n";
     int option = 0;
     for (const Facility* facility = facilities; facility != nullptr; facility = facility->next) {
-        std::cout << "    [" << ++option << "] " << facility->title() << "\n";
+        printOption(DATASET_COLOR, "[" + std::to_string(++option) + "] " + facility->title());
     }
     int combinedOption = option + 1;
-    std::cout << "    [" << combinedOption << "] All Datasets Combined\n";
-    std::cout << "    " << RED << "[0] Back to main menu" << COLOR_RESET << "\n";
+    printOption(DATASET_COLOR, "[" + std::to_string(combinedOption) + "] All Datasets Combined");
+    printOption(BACK_COLOR, "[0] Back to main menu");
 
     int choice = readChoice(0, combinedOption);
     if (choice <= 0) {
@@ -146,20 +164,20 @@ static void runSortingMenu(const Facility* facilities, const PatientList& allPat
     }
 
     std::cout << "\n  Sort by:\n";
-    std::cout << "    [1] Age\n";
-    std::cout << "    [2] Visit Duration (Length of Stay)\n";
-    std::cout << "    [3] Total Medical Cost\n";
-    std::cout << "    [4] Care Type (alphabetical)\n";
-    std::cout << "    [5] All fields (comparison)\n";
-    std::cout << "    " << RED << "[0] Back to main menu" << COLOR_RESET << "\n";
+    printOption(FIELD_COLOR, "[1] Age");
+    printOption(FIELD_COLOR, "[2] Visit Duration (Length of Stay)");
+    printOption(FIELD_COLOR, "[3] Total Medical Cost");
+    printOption(FIELD_COLOR, "[4] Care Type (alphabetical)");
+    printOption(FIELD_COLOR, "[5] All fields (comparison)");
+    printOption(BACK_COLOR, "[0] Back to main menu");
     int fieldChoice = readChoice(0, 5);
     if (fieldChoice <= 0) {
         return;
     }
 
     std::cout << "\n  Order:\n";
-    std::cout << "    [1] Ascending (lowest first)\n";
-    std::cout << "    [2] Descending (highest first, Z-A for care type)\n";
+    printOption(ORDER_COLOR, "[1] Ascending (lowest first)");
+    printOption(ORDER_COLOR, "[2] Descending (highest first, Z-A for care type)");
     int orderChoice = readChoice(1, 2);
     if (orderChoice <= 0) {
         return;
@@ -192,8 +210,8 @@ static const int MAX_COST_THRESHOLD_MYR = 1000000;
 // Returns 1 for ascending, 2 for descending, or -1 when input ends.
 static int chooseSortedOrder() {
     std::cout << "\n  Order of the sorted data:\n";
-    std::cout << "    [1] Ascending (youngest, A-Z, shortest visit or lowest cost first)\n";
-    std::cout << "    [2] Descending (oldest, Z-A, longest visit or highest cost first)\n";
+    printOption(ORDER_COLOR, "[1] Ascending (youngest, A-Z, shortest visit or lowest cost first)");
+    printOption(ORDER_COLOR, "[2] Descending (oldest, Z-A, longest visit or highest cost first)");
     return readChoice(1, 2);
 }
 
@@ -207,11 +225,11 @@ static void runSearchingMenu(const Facility* facilities, const PatientList& allP
     }
 
     std::cout << "\n  Search by:\n";
-    std::cout << "    [1] Age Group\n";
-    std::cout << "    [2] Care Type\n";
-    std::cout << "    [3] Visit Duration Threshold (visits longer than a number of hours)\n";
-    std::cout << "    [4] Total Medical Cost Threshold (total cost above an amount in MYR)\n";
-    std::cout << "    " << RED << "[0] Back to main menu" << COLOR_RESET << "\n";
+    printOption(FIELD_COLOR, "[1] Age Group");
+    printOption(FIELD_COLOR, "[2] Care Type");
+    printOption(FIELD_COLOR, "[3] Visit Duration Threshold (visits longer than a number of hours)");
+    printOption(FIELD_COLOR, "[4] Total Medical Cost Threshold (total cost above an amount in MYR)");
+    printOption(BACK_COLOR, "[0] Back to main menu");
     int searchChoice = readChoice(0, 4);
     if (searchChoice <= 0) {
         return;
@@ -221,7 +239,7 @@ static void runSearchingMenu(const Facility* facilities, const PatientList& allP
     if (searchChoice == 1) {
         std::cout << "\n  Age group:\n";
         for (int g = 0; g < AGE_GROUP_COUNT; ++g) {
-            std::cout << "    [" << (g + 1) << "] " << ageGroupName(static_cast<AgeGroup>(g)) << "\n";
+            printOption(VALUE_COLOR, "[" + std::to_string(g + 1) + "] " + ageGroupName(static_cast<AgeGroup>(g)));
         }
         int groupChoice = readChoice(1, AGE_GROUP_COUNT);
         if (groupChoice <= 0) {
@@ -238,8 +256,8 @@ static void runSearchingMenu(const Facility* facilities, const PatientList& allP
         std::cout << "\n  Care type:\n";
         int option = 0;
         for (const CareTypeStatList::Node* node = careTypes.getHead(); node != nullptr; node = node->next) {
-            std::cout << "    [" << ++option << "] " << node->careType
-                      << " (" << node->summary.patientCount << " patients)\n";
+            printOption(VALUE_COLOR, "[" + std::to_string(++option) + "] " + node->careType
+                                     + " (" + std::to_string(node->summary.patientCount) + " patients)");
         }
         int careChoice = readChoice(1, option);
         if (careChoice <= 0) {
@@ -307,11 +325,12 @@ int main() {
     // Every patient from every dataset, for cross-facility analysis
     PatientList allPatients;
 
-    std::cout << "[Step 1] Loading MetroHealth Datasets into Custom Singly Linked Lists...\n";
+    // The heading lines up with the banner and menu titles (2 spaces); the datasets sit one level under it (4 spaces)
+    std::cout << "  Loading MetroHealth Datasets into Custom Singly Linked Lists...\n";
     for (Facility* facility = facilities; facility != nullptr; facility = facility->next) {
         facility->loadResult = DataLoader::loadCSV(facility->fileName, facility->patients);
         allPatients.appendAll(facility->patients);
-        std::cout << "  " << std::left << std::setw(52) << facility->title()
+        std::cout << "    " << DATASET_COLOR << std::left << std::setw(52) << facility->title() << COLOR_RESET
             << (facility->loadResult >= 0 ? std::to_string(facility->loadResult) + " records loaded" : "FAILED")
             << "\n";
     }
@@ -321,13 +340,13 @@ int main() {
         std::cout << "\n------------------------------------------------------------------------------------\n";
         std::cout << "  MAIN MENU\n";
         std::cout << "------------------------------------------------------------------------------------\n";
-        std::cout << "  [1] Dataset Storage Summary & Sample Records\n";
-        std::cout << "  [2] Patient Demographic & Billing Categorization (by Age Group)\n";
-        std::cout << "  [3] Healthcare Expenditure & Service Analysis\n";
-        std::cout << "  [4] Sorting & Performance Analysis (Bubble Sort vs Merge Sort)\n";
-        std::cout << "  [5] Searching Experiments (Linear Search vs Sentinel Linear Search)\n";
-        std::cout << "  [6] Run All Reports\n";
-        std::cout << "  " << RED << "[0] Exit" << COLOR_RESET << "\n";
+        printOption(MAIN_MENU_COLOR, "[1] Dataset Storage Summary & Sample Records", "  ");
+        printOption(MAIN_MENU_COLOR, "[2] Patient Demographic & Billing Categorization (by Age Group)", "  ");
+        printOption(MAIN_MENU_COLOR, "[3] Healthcare Expenditure & Service Analysis", "  ");
+        printOption(MAIN_MENU_COLOR, "[4] Sorting & Performance Analysis (Bubble Sort vs Merge Sort)", "  ");
+        printOption(MAIN_MENU_COLOR, "[5] Searching Experiments (Linear Search vs Sentinel Linear Search)", "  ");
+        printOption(MAIN_MENU_COLOR, "[6] Run All Reports", "  ");
+        printOption(BACK_COLOR, "[0] Exit", "  ");
 
         switch (readChoice(0, 6)) {
         case 1:
