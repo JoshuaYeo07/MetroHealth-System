@@ -90,10 +90,10 @@ namespace {
                 sink = sink + scan(ignoredKeys, ignoredBounds);
             }
             auto end = std::chrono::high_resolution_clock::now();
-            batchAverages[b] = std::chrono::duration<double, std::nano>(end - start).count()
+            batchAverages[b] = std::chrono::duration<double, std::micro>(end - start).count()
                                / SearchEngine::RUNS_PER_BATCH;
         }
-        m.avgTimeNanosec = median(batchAverages, SearchEngine::TIMING_BATCHES);
+        m.avgTimeMicrosec = median(batchAverages, SearchEngine::TIMING_BATCHES);
     }
 
     // Copies the matching records (by index) into the caller's array, if one was given
