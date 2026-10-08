@@ -59,7 +59,7 @@ struct SearchMetrics {
     size_t matches = 0;               // Number of records that satisfied the query
     uint64_t keyComparisons = 0;      // Records tested against the query (including the sentinel)
     uint64_t boundChecks = 0;         // End-of-array checks (i < n or i == n)
-    double avgTimeNanosec = 0.0;      // Time per search: median of TIMING_BATCHES batch averages
+    double avgTimeMicrosec = 0.0;     // Time per search in microseconds: median of TIMING_BATCHES batch averages
     size_t memoryFootprintBytes = 0;  // Container object plus capacity * sizeof(Patient)
     size_t auxiliaryMemoryBytes = 0;  // Estimated peak source-level workspace; see model in Searching.cpp
     bool arrayGrew = false;           // True if the array had to grow to make room for the sentinel

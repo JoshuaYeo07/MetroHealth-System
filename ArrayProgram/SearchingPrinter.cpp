@@ -16,7 +16,7 @@ namespace {
                   << " | " << std::setw(9)  << m.keyComparisons
                   << " | " << std::setw(12) << m.boundChecks
                   << " | " << std::setw(11) << m.totalComparisons()
-                  << " | " << std::setw(13) << std::fixed << std::setprecision(1) << m.avgTimeNanosec
+                  << " | " << std::setw(13) << std::fixed << std::setprecision(2) << m.avgTimeMicrosec
                   << " | " << std::setw(13) << m.memoryFootprintBytes << " B"
                   << " | " << std::setw(10) << m.auxiliaryMemoryBytes << " B"
                   << " | " << std::setw(10) << m.getPeakMemoryBytes() << " B |\n";
@@ -45,10 +45,10 @@ namespace {
 
     // Percentage of time the Sentinel version saved compared with Linear Search (negative if slower)
     double timeSavedPercent(const SearchMetrics& linear, const SearchMetrics& sentinel) {
-        if (linear.avgTimeNanosec <= 0.0) {
+        if (linear.avgTimeMicrosec <= 0.0) {
             return 0.0;
         }
-        return 100.0 * (linear.avgTimeNanosec - sentinel.avgTimeNanosec) / linear.avgTimeNanosec;
+        return 100.0 * (linear.avgTimeMicrosec - sentinel.avgTimeMicrosec) / linear.avgTimeMicrosec;
     }
 }
 
@@ -66,7 +66,7 @@ void SearchingPrinter::printComparisonReport(const SearchComparison& result, con
               << " | " << std::setw(9)  << "Key Comps"
               << " | " << std::setw(12) << "Bound Checks"
               << " | " << std::setw(11) << "Total Comps"
-              << " | " << std::setw(13) << "Avg Time (ns)"
+              << " | " << std::setw(13) << "Avg Time (us)"
               << " | " << std::setw(15) << "Mem Footprint"
               << " | " << std::setw(12) << "Aux Memory"
               << " | " << std::setw(12) << "Peak Total" << " |\n";
@@ -80,7 +80,7 @@ void SearchingPrinter::printComparisonReport(const SearchComparison& result, con
 
     std::cout << "  Key Comps    : records tested against the search condition (Sentinel includes the sentinel)\n";
     std::cout << "  Bound Checks : end-of-array checks (i < n for Linear, i == n after each match for Sentinel)\n";
-    std::cout << "  Avg Time     : time per search, median of " << SearchEngine::TIMING_BATCHES
+    std::cout << "  Avg Time     : time per search in microseconds (us), median of " << SearchEngine::TIMING_BATCHES
               << " batches of " << SearchEngine::RUNS_PER_BATCH << " searches (after a "
               << SearchEngine::WARM_UP_MILLISECONDS << " ms warm-up)\n";
 }
@@ -117,7 +117,7 @@ void SearchingPrinter::printObservations(const SearchComparison& result, size_t 
               << "; the same record tests, but the bound is only checked after each match.\n";
 
     std::cout << "\n2. Execution Time\n";
-    std::cout << "   Shows how long one search took in nanoseconds via std::chrono: the median of "
+    std::cout << "   Shows how long one search took in microseconds (us) via std::chrono: the median of "
               << SearchEngine::TIMING_BATCHES << " batches\n";
     std::cout << "   of " << SearchEngine::RUNS_PER_BATCH << " searches, after a "
               << SearchEngine::WARM_UP_MILLISECONDS << " ms warm-up.\n";
